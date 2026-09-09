@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+.git/
+.gitignore
+Dockerfile*
+*.db
+*.db-shm
+*.db-wal
+*.pfx
+*.snk
+*.user
+appsettings.Development.json

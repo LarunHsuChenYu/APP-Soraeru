@@ -102,12 +102,13 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 
 ## 7. 策展服務（Curator＝票 05「Web」）
 
-與 ADR-0012／ADR-0009 一致：**同一個 repo、第二條 Railway 服務**；**共用既有 API**，不要新開第二套 API／Volume（除非要完整 staging）。
+與 ADR-0012／ADR-0009 一致：**同一個 repo、第二條 Railway 服務**；**共用既有 API**，不要新開第二套 API／Volume（除非要完整 staging）。Curator 必須以 monorepo **Root Directory 隔離**，使建置 context 完全看不到 repo 根目錄的 API `railway.toml` 與 `Dockerfile`。
 
 ### 第 1 階段：程式準備（本機完成，不部署）
 
-- [x] 根目錄 `Dockerfile.curator` 只 restore／publish `src/Soraeru.Curator`，不碰 MAUI workloads。
-- [x] `.dockerignore` 允許 Curator 進入 build context，並排除 `bin`／`obj`／DB／tmp／常見憑證檔。
+- [x] `src/Soraeru.Curator/Dockerfile` 以該子目錄為完整 build context，只 restore／publish Curator。
+- [x] `src/Soraeru.Curator/.dockerignore` 排除 `bin`／`obj`／DB／常見憑證檔。
+- [x] Curator `.csproj` 沒有 `ProjectReference`，也不依賴 context 外的 `Directory.Build.props`／`Directory.Build.targets`。
 - [x] Curator 支援 Railway `PORT`，並提供匿名 `GET /health`。
 - [x] Production 不強制把 Railway 內部 HTTP 重新導向 HTTPS；公開 TLS 由 Railway termination。
 - [ ] 發版前重新執行 Curator tests／build、API build，以及可用時的 Curator Docker build。
@@ -118,29 +119,23 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 
 1. 先讓既有 **API 服務**使用含 `/api/v1/curator/*`（verified CRUD、LLM、accounts）的版本；確認 `GET https://airy-enjoyment-production-de0f.up.railway.app/health`＝200。保留既有 `/app/data` Volume 與單 replica。
 2. Canvas **+ New** → **GitHub Repo** → 選同一 repo，建立第二個服務（建議名稱 `soraeru-curator`）。
-3. Curator 服務 → **Settings**，搜尋 `config`，將 **Config File Path**（介面也可能顯示 **Railway Config File** 或 **Custom Config File Path**）設為 repo 絕對路徑：
-   - `/railway.curator.toml`
-   - **這是必要設定。** Repo 根目錄的 `railway.toml` 明確指定 API 的 `/Dockerfile`；Railway Config as Code 可覆蓋 Dashboard 的 Build／Deploy 欄位。若 Curator 只在 Dashboard 填 `Dockerfile.curator`、卻沒有改 Custom Config File Path，部署仍可能建出 `Soraeru.Api.dll`，啟動後便錯誤要求 `Jwt:SigningKey`。
-   - 儲存後，Build／Deploy 欄位若出現檔案圖示，應顯示來源為 `/railway.curator.toml`。
-4. 同頁 **Source / Build** 確認：
-   - Root Directory：留空（repo 根目錄）
-   - Builder：`Dockerfile`
-   - Dockerfile Path：應解析為 `/Dockerfile.curator`
-   - Dashboard 的 Dockerfile Path 可保留 `/Dockerfile.curator` 作為提示，或清空以避免兩個來源；實際以專屬 config file 為準。
+3. Curator 服務 → **Settings → Source → Add Root Directory**，填入 `/src/Soraeru.Curator`。若 UI 自動移除前導 `/`，最後顯示 `src/Soraeru.Curator` 是同一設定。
+4. 同頁 **Build** 確認 Builder 為 `Dockerfile`，並將 **Dockerfile Path 清空**；Railway 會使用隔離根目錄內的 `Dockerfile`。不要設定 Custom Config File，也不要設定 `RAILWAY_DOCKERFILE_PATH`。
 5. **不要掛 Volume**；Curator 只透過 HTTP 使用既有 API。
 6. Curator 服務 → **Variables**：
 
 | 變數 | 值 |
 |------|-----|
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
-| `ASPNETCORE_URLS` | `http://+:${{PORT}}`（程式也讀 `PORT`，雙保險） |
 | `Curator__ApiBaseUrl` | `https://airy-enjoyment-production-de0f.up.railway.app` |
 
-   Curator **不需要也不應設定** `Jwt__SigningKey`、API 的 Connection String 或 LLM key；它透過 `Curator__ApiBaseUrl` 呼叫既有 API。
-7. **Settings → Deploy** 確認 Healthcheck Path 為 `/health`，Restart Policy 為 `On Failure`（兩者由專屬 config 提供）。
+   `PORT` 由 Railway 注入，程式會直接讀取；不需要 `ASPNETCORE_URLS`。Curator **不需要也不應設定** `Jwt__SigningKey`、API 的 Connection String 或 LLM key；它透過 `Curator__ApiBaseUrl` 呼叫既有 API。
+7. **Settings → Deploy** 將 Healthcheck Path 設為 `/health`。
 8. **Settings → Networking → Generate Domain**，取得 `https://<curator>.up.railway.app`。
-9. **Deployments** → 最新部署右側選單 → **Redeploy**（介面也可能顯示 **Redeploy Deployment**）；確認建置 log 使用 `Dockerfile.curator`，啟動項為 `Soraeru.Curator.dll`，而不是 `Soraeru.Api.dll`。
+9. 取消目前錯誤部署，儲存上述設定後從 **staged changes** 按 **Deploy**；確認建置 context 是 `src/Soraeru.Curator`、啟動項為 `Soraeru.Curator.dll`，而不是 `Soraeru.Api.dll`。
 10. 部署成功後先驗證 Curator `/health`＝200，再以允許清單 Email 登入，煙測金標 CRUD、LLM 設定／用量、帳號管理。
+
+Repo 根目錄的 `Dockerfile.curator` 與 `railway.curator.toml` 是舊方案相容檔，不再用於 Curator Railway 服務。不要把 Curator Root Directory 改回 repo 根目錄，也不要用 custom config 或 `RAILWAY_DOCKERFILE_PATH` 覆寫隔離設定。
 
 ### 日常更新
 

@@ -122,6 +122,7 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 3. Curator 服務 → **Settings → Source → Add Root Directory**，填入 `/src/Soraeru.Curator`。若 UI 自動移除前導 `/`，最後顯示 `src/Soraeru.Curator` 是同一設定。
 4. 同頁 **Build** 確認 Builder 為 `Dockerfile`，並將 **Dockerfile Path 清空**；Railway 會使用隔離根目錄內的 `Dockerfile`。不要設定 Custom Config File，也不要設定 `RAILWAY_DOCKERFILE_PATH`。
 5. Curator 服務 → **Volumes** 新增一個 **Curator 專用 Volume**，Mount Path 設為 `/app/data-protection-keys`。這個 Volume 只保存 ASP.NET Core Data Protection 金鑰，**不保存業務 DB**；不得掛 API 的 `/app/data` SQLite Volume，也不得與 API 共用 Volume。
+   - 容器首次啟動會先以 root 建立並將設定的 Data Protection keys 目錄 `chown` 給 `app`，隨即降權以 `app` 執行 Curator；Volume 與 `DataProtection__KeysPath` 均維持 `/app/data-protection-keys`。
    - Railway attach Volume 可能立即觸發一次 redeploy，屬正常行為。先等該次 redeploy 完成，再設定下一步 variable；最後以最新 deployment 為準。
 6. Curator 服務 → **Variables**：
 

@@ -5,7 +5,13 @@ COPY Soraeru.Curator.csproj ./
 RUN dotnet restore Soraeru.Curator.csproj
 
 COPY . ./
-RUN dotnet publish Soraeru.Curator.csproj -c Release -o /app/publish --no-restore
+# region agent log
+RUN dotnet --version \
+    && dotnet publish Soraeru.Curator.csproj -c Release -o /app/publish --no-restore \
+    && test -f /app/publish/wwwroot/_framework/blazor.web.js \
+    && grep -q '"Route":"_framework/blazor.web.js"' \
+        /app/publish/Soraeru.Curator.staticwebassets.endpoints.json
+# endregion
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
@@ -13,6 +19,11 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gosu \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/publish .
+# region agent log
+RUN test -f /app/wwwroot/_framework/blazor.web.js \
+    && grep -q '"Route":"_framework/blazor.web.js"' \
+        /app/Soraeru.Curator.staticwebassets.endpoints.json
+# endregion
 COPY curator-entrypoint.sh /usr/local/bin/curator-entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/curator-entrypoint.sh \
     && chmod 0755 /usr/local/bin/curator-entrypoint.sh

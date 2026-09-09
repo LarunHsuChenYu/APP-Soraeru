@@ -114,8 +114,7 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseAntiforgery();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "Soraeru.Curator" }));
-app.MapStaticAssets()
-    .ShortCircuit();
+app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
@@ -150,6 +149,34 @@ AgentDebugLog(new
         frameworkRoutes,
         physicalBlazorScript = File.Exists(
             Path.Combine(app.Environment.WebRootPath ?? "", "_framework", "blazor.web.js"))
+    },
+    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+});
+// #endregion
+
+// #region agent log
+var publishManifestPath = Path.Combine(
+    AppContext.BaseDirectory,
+    "Soraeru.Curator.staticwebassets.endpoints.json");
+var publishManifestText = File.Exists(publishManifestPath)
+    ? File.ReadAllText(publishManifestPath)
+    : "";
+AgentDebugLog(new
+{
+    sessionId = "1a7969",
+    runId = "pre-fix-2",
+    hypothesisId = "H5,H6",
+    location = "Program.cs:publish-manifest-probe",
+    message = "Curator publish manifest content state",
+    data = new
+    {
+        commit = Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA"),
+        manifestLength = publishManifestText.Length,
+        manifestContainsBlazorWebRoute = publishManifestText.Contains(
+            "\"Route\":\"_framework/blazor.web.js\"",
+            StringComparison.Ordinal),
+        physicalFrameworkDirectory = Directory.Exists(
+            Path.Combine(app.Environment.WebRootPath ?? "", "_framework"))
     },
     timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
 });

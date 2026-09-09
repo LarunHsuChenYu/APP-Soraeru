@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 using Soraeru.Curator;
 using Soraeru.Curator.Api;
 using Soraeru.Curator.Components;
@@ -72,6 +73,36 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Request.Path == "/login"
+        || context.Request.Path == "/_framework/blazor.web.js")
+    {
+        // #region agent log
+        AgentDebugLog(new
+        {
+            sessionId = "1a7969",
+            runId = "pre-fix",
+            hypothesisId = "H1,H3,H4",
+            location = "Program.cs:request-probe",
+            message = "Curator request routing result",
+            data = new
+            {
+                path = context.Request.Path.Value,
+                method = context.Request.Method,
+                status = context.Response.StatusCode,
+                endpoint = context.GetEndpoint()?.DisplayName,
+                contentType = context.Response.ContentType,
+                commit = Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA")
+            },
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+        });
+        // #endregion
+    }
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -88,6 +119,58 @@ app.MapStaticAssets()
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// #region agent log
+var frameworkRoutes = ((IEndpointRouteBuilder)app).DataSources
+    .SelectMany(source => source.Endpoints)
+    .OfType<RouteEndpoint>()
+    .Select(endpoint => endpoint.RoutePattern.RawText)
+    .Where(route => route?.Contains("blazor.web", StringComparison.OrdinalIgnoreCase) == true)
+    .Take(10)
+    .ToArray();
+var staticAssetManifests = Directory
+    .EnumerateFiles(AppContext.BaseDirectory, "*staticwebassets*", SearchOption.TopDirectoryOnly)
+    .Select(Path.GetFileName)
+    .OrderBy(name => name)
+    .ToArray();
+AgentDebugLog(new
+{
+    sessionId = "1a7969",
+    runId = "pre-fix",
+    hypothesisId = "H1,H2,H4",
+    location = "Program.cs:startup-probe",
+    message = "Curator static asset runtime state",
+    data = new
+    {
+        environment = app.Environment.EnvironmentName,
+        contentRoot = app.Environment.ContentRootPath,
+        webRoot = app.Environment.WebRootPath,
+        baseDirectory = AppContext.BaseDirectory,
+        commit = Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA"),
+        staticAssetManifests,
+        frameworkRoutes,
+        physicalBlazorScript = File.Exists(
+            Path.Combine(app.Environment.WebRootPath ?? "", "_framework", "blazor.web.js"))
+    },
+    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+});
+// #endregion
+
 app.Run();
+
+static void AgentDebugLog(object payload)
+{
+    var json = JsonSerializer.Serialize(payload);
+    Console.WriteLine($"AGENT_DEBUG {json}");
+
+    try
+    {
+        File.AppendAllText("debug-1a7969.log", json + Environment.NewLine);
+    }
+    catch (Exception exception)
+    {
+        Console.WriteLine(
+            $"AGENT_DEBUG_FILE_ERROR {exception.GetType().Name}: {exception.Message}");
+    }
+}
 
 public partial class Program;

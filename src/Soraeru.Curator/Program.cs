@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using Soraeru.Curator;
@@ -25,8 +26,36 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
+var dataProtection = builder.Services
+    .AddDataProtection()
+    .SetApplicationName("Soraeru.Curator");
+
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"];
+if (builder.Environment.IsProduction() && !string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+{
+    var keysDirectory = new DirectoryInfo(dataProtectionKeysPath);
+    keysDirectory.Create();
+    dataProtection.PersistKeysToFileSystem(keysDirectory);
+}
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// AddRazorComponents registers antiforgery services. Configure the same options
+// afterwards so Razor Components uses this app-specific, versioned cookie.
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.Name = builder.Environment.IsProduction()
+        ? "__Host-SoraeruCurator.Antiforgery.v2"
+        : "SoraeruCurator.Antiforgery.v2";
+    options.Cookie.Path = "/";
+    options.Cookie.Domain = null;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = builder.Environment.IsProduction()
+        ? CookieSecurePolicy.Always
+        : CookieSecurePolicy.SameAsRequest;
+});
 
 builder.Services.AddScoped<CuratorSessionState>();
 builder.Services.AddHttpClient<ICuratorApiClient, CuratorApiClient>((sp, client) =>

@@ -111,7 +111,7 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 - [x] Curator `.csproj` 沒有 `ProjectReference`，也不依賴 context 外的 `Directory.Build.props`／`Directory.Build.targets`。
 - [x] Curator 支援 Railway `PORT`，並提供匿名 `GET /health`。
 - [x] Production 不強制把 Railway 內部 HTTP 重新導向 HTTPS；公開 TLS 由 Railway termination。
-- [ ] 發版前重新執行 Curator tests／build、API build，以及可用時的 Curator Docker build。
+- [ ] 發版前重新執行 Curator tests／build／publish，以及可用時的 Curator Docker build。
 
 ### 第 2 階段：Railway Dashboard（取得人工授權後執行）
 
@@ -121,19 +121,23 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 2. Canvas **+ New** → **GitHub Repo** → 選同一 repo，建立第二個服務（建議名稱 `soraeru-curator`）。
 3. Curator 服務 → **Settings → Source → Add Root Directory**，填入 `/src/Soraeru.Curator`。若 UI 自動移除前導 `/`，最後顯示 `src/Soraeru.Curator` 是同一設定。
 4. 同頁 **Build** 確認 Builder 為 `Dockerfile`，並將 **Dockerfile Path 清空**；Railway 會使用隔離根目錄內的 `Dockerfile`。不要設定 Custom Config File，也不要設定 `RAILWAY_DOCKERFILE_PATH`。
-5. **不要掛 Volume**；Curator 只透過 HTTP 使用既有 API。
+5. Curator 服務 → **Volumes** 新增一個 **Curator 專用 Volume**，Mount Path 設為 `/app/data-protection-keys`。這個 Volume 只保存 ASP.NET Core Data Protection 金鑰，**不保存業務 DB**；不得掛 API 的 `/app/data` SQLite Volume，也不得與 API 共用 Volume。
+   - Railway attach Volume 可能立即觸發一次 redeploy，屬正常行為。先等該次 redeploy 完成，再設定下一步 variable；最後以最新 deployment 為準。
 6. Curator 服務 → **Variables**：
 
 | 變數 | 值 |
 |------|-----|
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
 | `Curator__ApiBaseUrl` | `https://airy-enjoyment-production-de0f.up.railway.app` |
+| `DataProtection__KeysPath` | `/app/data-protection-keys` |
 
-   `PORT` 由 Railway 注入，程式會直接讀取；不需要 `ASPNETCORE_URLS`。Curator **不需要也不應設定** `Jwt__SigningKey`、API 的 Connection String 或 LLM key；它透過 `Curator__ApiBaseUrl` 呼叫既有 API。
+   `PORT` 由 Railway 注入，程式會直接讀取；不需要 `ASPNETCORE_URLS`。Curator **不需要也不應設定** `Jwt__SigningKey`、API 的 Connection String 或 LLM key；它透過 `Curator__ApiBaseUrl` 呼叫既有 API。`DataProtection__KeysPath` 只控制框架 cookie／antiforgery 金鑰位置。
 7. **Settings → Deploy** 將 Healthcheck Path 設為 `/health`。
-8. **Settings → Networking → Generate Domain**，取得 `https://<curator>.up.railway.app`。
+8. **Settings → Networking → Generate Domain**，取得 `https://<curator>.up.railway.app`；確認公開 domain 的 target port 為 **8080**。
 9. 取消目前錯誤部署，儲存上述設定後從 **staged changes** 按 **Deploy**；確認建置 context 是 `src/Soraeru.Curator`、啟動項為 `Soraeru.Curator.dll`，而不是 `Soraeru.Api.dll`。
-10. 部署成功後先驗證 Curator `/health`＝200，再以允許清單 Email 登入，煙測金標 CRUD、LLM 設定／用量、帳號管理。
+10. 等待 auto deploy 完成；部署成功後先驗證 Curator `/health`＝200，再以允許清單 Email 登入，煙測金標 CRUD、LLM 設定／用量、帳號管理。
+
+首次套用本設定時，舊的 `.AspNetCore.Antiforgery.*` cookie 會因 Curator 改用 `__Host-SoraeruCurator.Antiforgery.v2` 而自動被忽略，使用者不必清除瀏覽資料。之後 deploy 則由專用 Volume 保留 key ring，避免新 cookie 因容器重建而失效。若未先掛 Volume 或 variable 路徑不一致，仍會退回容器內非持久位置。
 
 Repo 根目錄的 `Dockerfile.curator` 與 `railway.curator.toml` 是舊方案相容檔，不再用於 Curator Railway 服務。不要把 Curator Root Directory 改回 repo 根目錄，也不要用 custom config 或 `RAILWAY_DOCKERFILE_PATH` 覆寫隔離設定。
 

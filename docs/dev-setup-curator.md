@@ -62,4 +62,4 @@ dotnet run --project src/Soraeru.Curator --launch-profile http
 
 **本機 vs 正式：** 本機策展預設打 `localhost:5080`；正式策展必須設 `Curator__ApiBaseUrl=https://airy-enjoyment-production-de0f.up.railway.app`（無尾斜線亦可）。改正式庫＝改真實使用者／金標／用量，部署前先確認目標。
 
-**部署前程式準備：** 根目錄 `Dockerfile.curator` 只建置 Curator；服務支援 Railway `PORT` 並提供匿名 `/health`。Curator 不掛 Volume，也不持有 API／LLM secrets。分階段驗證與 Railway Dashboard 的 Root Directory、Dockerfile Path、Variables、healthcheck、domain 操作見 [dev-setup-railway.md](dev-setup-railway.md)「策展服務」一節；實際部署順序為既有 API 先、Curator 後。
+**部署前程式準備：** 根目錄 `Dockerfile.curator` 只建置 Curator；服務支援 Railway `PORT` 並提供匿名 `/health`。Curator 要掛**獨立** Volume 到 `/app/data-protection-keys`，並設定 `DataProtection__KeysPath=/app/data-protection-keys`，只保存框架 Data Protection 金鑰；不得與 API 的 SQLite Volume 共用。Curator 不持有 API／LLM secrets。分階段驗證與 Railway Dashboard 的 Root Directory、Dockerfile Path、Variables、healthcheck、domain 操作見 [dev-setup-railway.md](dev-setup-railway.md)「策展服務」一節；實際部署順序為既有 API 先、Curator 後。

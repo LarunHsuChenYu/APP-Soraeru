@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Options;
 using Soraeru.Curator;
 using Soraeru.Curator.Api;
@@ -17,6 +18,12 @@ else if (!string.IsNullOrWhiteSpace(port))
 }
 
 builder.Services.Configure<CuratorOptions>(builder.Configuration.GetSection(CuratorOptions.SectionName));
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -33,6 +40,8 @@ builder.Services.AddHttpClient<ICuratorApiClient, CuratorApiClient>((sp, client)
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {

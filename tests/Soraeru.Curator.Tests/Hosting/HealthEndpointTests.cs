@@ -32,5 +32,17 @@ public sealed class HealthEndpointTests : IClassFixture<WebApplicationFactory<Pr
         health.Service.ShouldBe("Soraeru.Curator");
     }
 
+    [Fact]
+    public async Task Get_root_behind_https_proxy_redirects_to_https_login()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/");
+        request.Headers.Add("X-Forwarded-Proto", "https");
+
+        var response = await _client.SendAsync(request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Found);
+        response.Headers.Location.ShouldBe(new Uri("https://localhost/login"));
+    }
+
     private sealed record HealthResponse(string Status, string Service);
 }

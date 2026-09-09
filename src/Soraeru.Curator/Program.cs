@@ -83,7 +83,8 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseAntiforgery();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "Soraeru.Curator" }));
-app.MapStaticAssets();
+app.MapStaticAssets()
+    .ShortCircuit();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

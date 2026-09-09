@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Soraeru.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Soraeru.Infrastructure.Persistence;
 namespace Soraeru.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SoraeruDbContext))]
-    partial class SoraeruDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260904080432_AddLlmRuntimeSettingsAndUsage")]
+    partial class AddLlmRuntimeSettingsAndUsage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.0");

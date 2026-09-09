@@ -11,6 +11,8 @@ public interface IUserRepository
 
     Task<UserRecord?> FindByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<UserRecord>> ListAsync(CancellationToken cancellationToken = default);
+
     Task<UserRecord> AddAsync(UserRecord user, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(UserRecord user, CancellationToken cancellationToken = default);

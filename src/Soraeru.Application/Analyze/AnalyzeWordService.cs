@@ -193,7 +193,8 @@ public sealed class AnalyzeWordService : IAnalyzeWordService
             sourceLanguage,
             "zh-TW",
             notationPreference,
-            SkipMnemonics: true);
+            SkipMnemonics: true,
+            ActorUserId: user.Id);
 
         WordAnalysisPayload? meaningPayload = null;
         string? lastErrorCode = null;
@@ -327,7 +328,8 @@ public sealed class AnalyzeWordService : IAnalyzeWordService
             sourceLanguage,
             "zh-TW",
             notationPreference,
-            SkipMnemonics: false);
+            SkipMnemonics: false,
+            ActorUserId: user.Id);
 
         WordAnalysisPayload? payload = null;
         string? lastErrorCode = null;

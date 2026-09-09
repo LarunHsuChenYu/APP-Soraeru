@@ -46,6 +46,8 @@ public static class DependencyInjection
             services.AddSingleton<IWordCardRepository, InMemoryWordCardRepository>();
             services.AddSingleton<IVerifiedMnemonicRepository, InMemoryVerifiedMnemonicRepository>();
             services.AddSingleton<IWordRegenerationRepository, InMemoryWordRegenerationRepository>();
+            services.AddSingleton<ILlmRuntimeSettingsRepository, InMemoryLlmRuntimeSettingsRepository>();
+            services.AddSingleton<ILlmUsageRepository, InMemoryLlmUsageRepository>();
         }
         else
         {
@@ -58,6 +60,8 @@ public static class DependencyInjection
             services.AddScoped<IWordCardRepository, EfWordCardRepository>();
             services.AddScoped<IVerifiedMnemonicRepository, EfVerifiedMnemonicRepository>();
             services.AddScoped<IWordRegenerationRepository, EfWordRegenerationRepository>();
+            services.AddScoped<ILlmRuntimeSettingsRepository, EfLlmRuntimeSettingsRepository>();
+            services.AddScoped<ILlmUsageRepository, EfLlmUsageRepository>();
         }
 
         services.AddSingleton<IPasswordHasher, AspNetIdentityPasswordHasher>();
@@ -67,11 +71,12 @@ public static class DependencyInjection
         services.AddSingleton<ITokenService, JwtTokenService>();
         services.AddSingleton<IEmailSender, LoggingEmailSender>();
         services.AddSingleton<IAnalysisResultCache, MemoryAnalysisResultCache>();
+        services.AddScoped<ILlmSettingsResolver, LlmSettingsResolver>();
 
         services.AddHttpClient<IWordAnalysisAgent, OpenAiCompatibleWordAnalysisAgent>((sp, client) =>
         {
             var options = sp.GetRequiredService<IOptions<LlmOptions>>().Value;
-            OpenAiCompatibleWordAnalysisAgentExtensions.ConfigureHttpClient(client, options);
+            OpenAiCompatibleWordAnalysisAgentExtensions.ConfigureHttpClient(client, options.TimeoutSeconds);
         });
 
         return services;

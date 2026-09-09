@@ -45,6 +45,17 @@ public sealed class InMemoryUserRepository : IUserRepository
         }
     }
 
+    public Task<IReadOnlyList<UserRecord>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        lock (_gate)
+        {
+            IReadOnlyList<UserRecord> list = _users
+                .OrderBy(u => u.Email, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            return Task.FromResult(list);
+        }
+    }
+
     public Task<UserRecord> AddAsync(UserRecord user, CancellationToken cancellationToken = default)
     {
         lock (_gate)

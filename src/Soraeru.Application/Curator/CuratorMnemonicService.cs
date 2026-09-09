@@ -201,7 +201,7 @@ public sealed class CuratorMnemonicService : ICuratorMnemonicService
             return ("NOT_FOUND", "使用者不存在。");
         }
 
-        if (!_curatorPolicy.IsDeveloperEmail(user.Email))
+        if (!(user.IsDeveloper || _curatorPolicy.IsDeveloperEmail(user.Email)))
         {
             return ("FORBIDDEN", "僅策展授權帳號可管理已驗證空耳。");
         }

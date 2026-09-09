@@ -20,6 +20,10 @@ public sealed class SoraeruDbContext : DbContext
 
     public DbSet<WordRegenerationEntity> WordRegenerations => Set<WordRegenerationEntity>();
 
+    public DbSet<LlmRuntimeSettingsEntity> LlmRuntimeSettings => Set<LlmRuntimeSettingsEntity>();
+
+    public DbSet<LlmUsageEntity> LlmUsages => Set<LlmUsageEntity>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var users = modelBuilder.Entity<UserEntity>();
@@ -67,5 +71,24 @@ public sealed class SoraeruDbContext : DbContext
         regenerations.HasKey(x => new { x.UserId, x.SourceLanguage, x.NormalizedText });
         regenerations.Property(x => x.SourceLanguage).HasMaxLength(32).IsRequired();
         regenerations.Property(x => x.NormalizedText).HasMaxLength(200).IsRequired();
+
+        var llmSettings = modelBuilder.Entity<LlmRuntimeSettingsEntity>();
+        llmSettings.ToTable("LlmRuntimeSettings");
+        llmSettings.HasKey(x => x.Id);
+        llmSettings.Property(x => x.ApiKey).HasMaxLength(500);
+        llmSettings.Property(x => x.Model).HasMaxLength(128);
+        llmSettings.Property(x => x.BaseUrl).HasMaxLength(500);
+        llmSettings.Property(x => x.UpdatedByEmail).HasMaxLength(320);
+
+        var llmUsage = modelBuilder.Entity<LlmUsageEntity>();
+        llmUsage.ToTable("LlmUsages");
+        llmUsage.HasKey(x => x.Id);
+        llmUsage.HasIndex(x => x.CreatedAt);
+        llmUsage.HasIndex(x => new { x.FeatureType, x.CreatedAt });
+        llmUsage.Property(x => x.FeatureType).HasMaxLength(64).IsRequired();
+        llmUsage.Property(x => x.Model).HasMaxLength(128).IsRequired();
+        llmUsage.Property(x => x.Provider).HasMaxLength(64).IsRequired();
+        llmUsage.Property(x => x.ErrorCode).HasMaxLength(64);
+        llmUsage.Property(x => x.EstimatedCostNtd).HasPrecision(18, 6);
     }
 }

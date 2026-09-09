@@ -43,6 +43,14 @@ public sealed class EfUserRepository : IUserRepository
         return entity is null ? null : ToRecord(entity);
     }
 
+    public async Task<IReadOnlyList<UserRecord>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        var entities = await _db.Users.AsNoTracking()
+            .OrderBy(u => u.Email)
+            .ToListAsync(cancellationToken);
+        return entities.Select(ToRecord).ToList();
+    }
+
     public async Task<UserRecord> AddAsync(UserRecord user, CancellationToken cancellationToken = default)
     {
         var entity = ToEntity(user);

@@ -245,7 +245,8 @@ public sealed class AuthService : IAuthService
 
     private async Task<UserRecord> SyncDeveloperFlagAsync(UserRecord user, CancellationToken cancellationToken)
     {
-        var shouldBeDeveloper = _developers.IsDeveloperEmail(user.Email);
+        // Union: config allowlist OR DB IsDeveloper. Allowlist can grant but not revoke a Curator UI toggle.
+        var shouldBeDeveloper = _developers.IsDeveloperEmail(user.Email) || user.IsDeveloper;
         if (user.IsDeveloper == shouldBeDeveloper
             && (!shouldBeDeveloper || user.DailyQuota == AppConstants.UnlimitedDailyQuota))
         {

@@ -17,6 +17,8 @@ public static class DependencyInjection
         services.AddScoped<IAnalyzeWordService, AnalyzeWordService>();
         services.AddScoped<INotebookService, NotebookService>();
         services.AddScoped<ICuratorMnemonicService, CuratorMnemonicService>();
+        services.AddScoped<ILlmAdminService, LlmAdminService>();
+        services.AddScoped<ICuratorUserAdminService, CuratorUserAdminService>();
         return services;
     }
 }

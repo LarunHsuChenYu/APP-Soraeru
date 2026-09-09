@@ -19,7 +19,9 @@ public sealed record WordAnalysisAgentRequest(
     /// When true, agent must only produce meaning / reading / language fields (no empty-ear mnemonics).
     /// Used on verified-hit path (ADR-0001).
     /// </summary>
-    bool SkipMnemonics = false);
+    bool SkipMnemonics = false,
+    /// <summary>Optional actor for LlmUsage attribution.</summary>
+    Guid? ActorUserId = null);
 
 /// <summary>
 /// Either a valid payload or a model-declared unanalyzable / transport failure.

@@ -91,5 +91,7 @@ app.MapMeEndpoints();
 app.MapAnalyzeEndpoints();
 app.MapNotebookEndpoints();
 app.MapCuratorMnemonicEndpoints();
+app.MapCuratorLlmAdminEndpoints();
+app.MapCuratorUserAdminEndpoints();
 
 app.Run();

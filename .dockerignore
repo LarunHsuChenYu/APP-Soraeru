@@ -2,6 +2,8 @@
 .vs
 .cursor
 .tmp-api-verify
+.tmp*
+**/.tmp*
 **/.git
 **/bin
 **/obj
@@ -11,6 +13,12 @@
 **/*.db-shm
 **/*.db-wal
 **/GoogleAuth.Debug.json
+**/*.pfx
+**/*.p12
+**/*.jks
+**/*.keystore
+**/*.pem
+**/*.key
 src/Soraeru.App
 src/Soraeru.ClientLogic
 tests

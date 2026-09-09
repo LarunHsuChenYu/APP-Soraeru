@@ -1,0 +1,159 @@
+@page "/verified"
+@using Soraeru.Curator.Api
+@inject ICuratorApiClient Api
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>已驗證空耳 — Soraeru 策展</PageTitle>
+
+@if (!EnsureAccess())
+{
+    return;
+}
+
+<h1>已驗證空耳</h1>
+
+<div class="row g-2 align-items-end mb-3" style="max-width: 40rem;">
+    <div class="col-md-4">
+        <label class="form-label">語言</label>
+        <InputText class="form-control" @bind-Value="_language" />
+    </div>
+    <div class="col-md-5">
+        <label class="form-label">搜尋</label>
+        <InputText class="form-control" @bind-Value="_query" />
+    </div>
+    <div class="col-md-3">
+        <button type="button" class="btn btn-primary w-100" @onclick="LoadAsync" disabled="@_busy">搜尋</button>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+<p>
+    <a class="btn btn-success btn-sm" href="verified/new">新增</a>
+</p>
+
+@if (_items is null)
+{
+    <p>載入中…</p>
+}
+else if (_items.Count == 0)
+{
+    <p class="text-muted">尚無條目。</p>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>語言</th>
+                <th>原詞</th>
+                <th>display</th>
+                <th>啟用</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _items)
+            {
+                <tr>
+                    <td>@item.Language</td>
+                    <td>@item.SourceText</td>
+                    <td>@item.DisplayText</td>
+                    <td>@(item.IsEnabled ? "是" : "否")</td>
+                    <td class="text-nowrap">
+                        <a href="@($"verified/{item.Id}")">編輯</a>
+                        <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                                @onclick="() => ToggleEnabledAsync(item)"
+                                disabled="@_busy">
+                            @(item.IsEnabled ? "下架" : "啟用")
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string _language = "";
+    private string _query = "";
+    private string? _error;
+    private bool _busy;
+    private IReadOnlyList<VerifiedMnemonicDto>? _items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (!EnsureAccess())
+        {
+            return;
+        }
+
+        await LoadAsync();
+    }
+
+    private bool EnsureAccess()
+    {
+        if (SessionState.CanEnterMaintenance)
+        {
+            return true;
+        }
+
+        Nav.NavigateTo(SessionState.Session is null ? "/login" : "/access-denied");
+        return false;
+    }
+
+    private async Task LoadAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var token = SessionState.Session!.AccessToken;
+            var result = await Api.ListAsync(
+                token,
+                string.IsNullOrWhiteSpace(_language) ? null : _language,
+                string.IsNullOrWhiteSpace(_query) ? null : _query);
+            if (!result.IsSuccess)
+            {
+                _error = result.ErrorMessage ?? "載入失敗。";
+                _items = [];
+                return;
+            }
+
+            _items = result.Value ?? [];
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ToggleEnabledAsync(VerifiedMnemonicDto item)
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var result = await Api.SetEnabledAsync(
+                SessionState.Session!.AccessToken,
+                item.Id,
+                !item.IsEnabled);
+            if (!result.IsSuccess)
+            {
+                _error = result.ErrorMessage ?? "更新啟用狀態失敗。";
+                return;
+            }
+
+            await LoadAsync();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

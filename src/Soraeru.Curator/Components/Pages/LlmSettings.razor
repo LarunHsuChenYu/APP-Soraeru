@@ -1,0 +1,168 @@
+@page "/llm-settings"
+@using Soraeru.Curator.Api
+@inject ICuratorApiClient Api
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>LLM 設定 — Soraeru 策展</PageTitle>
+
+@if (!EnsureAccess())
+{
+    return;
+}
+
+<h1>LLM 設定</h1>
+<p class="text-muted">
+    變更寫入 API 的 SQLite，立刻生效（不必 Redeploy）。空白 ApiKey＝不改；勾選「清除覆寫」則改回環境／appsettings。
+</p>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+@if (!string.IsNullOrWhiteSpace(_ok))
+{
+    <div class="alert alert-success">@_ok</div>
+}
+
+@if (_settings is null)
+{
+    <p>載入中…</p>
+}
+else
+{
+    <dl class="row" style="max-width: 40rem;">
+        <dt class="col-sm-4">目前金鑰</dt>
+        <dd class="col-sm-8">
+            <code>@_settings.ApiKeyMasked</code>
+            @if (_settings.ApiKeyFromDatabase)
+            {
+                <span class="badge text-bg-info ms-1">DB 覆寫</span>
+            }
+        </dd>
+        <dt class="col-sm-4">設定檔 Model</dt>
+        <dd class="col-sm-8"><code>@_settings.ConfigModel</code></dd>
+        <dt class="col-sm-4">設定檔 BaseUrl</dt>
+        <dd class="col-sm-8"><code>@_settings.ConfigBaseUrl</code></dd>
+    </dl>
+
+    <EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-3" style="max-width: 40rem;">
+        <div class="col-12">
+            <label class="form-label">新 ApiKey（留空＝不變更）</label>
+            <InputText type="password" class="form-control" @bind-Value="_form.ApiKey" autocomplete="off" />
+        </div>
+        <div class="col-12 form-check">
+            <InputCheckbox class="form-check-input" id="clearKey" @bind-Value="_form.ClearApiKey" />
+            <label class="form-check-label" for="clearKey">清除 DB 金鑰覆寫（改回環境變數）</label>
+        </div>
+        <div class="col-12">
+            <label class="form-label">Model</label>
+            <InputText class="form-control" @bind-Value="_form.Model" />
+            <div class="form-text">留空並儲存＝清除 Model 覆寫</div>
+        </div>
+        <div class="col-12">
+            <label class="form-label">BaseUrl</label>
+            <InputText class="form-control" @bind-Value="_form.BaseUrl" />
+            <div class="form-text">OpenAI-compatible 端點，無尾隨斜線</div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary" disabled="@_busy">儲存</button>
+            <button type="button" class="btn btn-link" @onclick="LoadAsync" disabled="@_busy">重新載入</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private LlmSettingsDto? _settings;
+    private readonly FormModel _form = new();
+    private string? _error;
+    private string? _ok;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (!EnsureAccess())
+        {
+            return;
+        }
+
+        await LoadAsync();
+    }
+
+    private bool EnsureAccess()
+    {
+        if (SessionState.CanEnterMaintenance)
+        {
+            return true;
+        }
+
+        Nav.NavigateTo(SessionState.Session is null ? "/login" : "/access-denied");
+        return false;
+    }
+
+    private async Task LoadAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var result = await Api.GetLlmSettingsAsync(SessionState.Session!.AccessToken);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "載入失敗。";
+                return;
+            }
+
+            _settings = result.Value;
+            _form.Model = _settings.Model;
+            _form.BaseUrl = _settings.BaseUrl;
+            _form.ApiKey = "";
+            _form.ClearApiKey = false;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _busy = true;
+        _error = null;
+        _ok = null;
+        try
+        {
+            var body = new UpdateLlmSettingsBody(
+                string.IsNullOrWhiteSpace(_form.ApiKey) ? null : _form.ApiKey,
+                _form.ClearApiKey,
+                _form.Model,
+                _form.BaseUrl);
+            var result = await Api.UpdateLlmSettingsAsync(SessionState.Session!.AccessToken, body);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "儲存失敗。";
+                return;
+            }
+
+            _settings = result.Value;
+            _ok = "已儲存，分析請求會立刻使用新設定。";
+            _form.ApiKey = "";
+            _form.ClearApiKey = false;
+            _form.Model = _settings.Model;
+            _form.BaseUrl = _settings.BaseUrl;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private sealed class FormModel
+    {
+        public string ApiKey { get; set; } = "";
+        public bool ClearApiKey { get; set; }
+        public string Model { get; set; } = "";
+        public string BaseUrl { get; set; } = "";
+    }
+}

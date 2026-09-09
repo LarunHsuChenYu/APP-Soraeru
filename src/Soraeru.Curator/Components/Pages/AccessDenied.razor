@@ -1,0 +1,29 @@
+@page "/access-denied"
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>無權限 — Soraeru 策展</PageTitle>
+
+<h1>無法進入維護面</h1>
+<p>
+    此 Google／帳號已通過身分驗證，但不在策展允許清單內。
+    @if (SessionState.Session is { } s)
+    {
+        <span>（@s.Email）</span>
+    }
+</p>
+<p class="text-muted">僅開發者帳號（<code>DeveloperAccounts</code> 或 DB <code>IsDeveloper</code>）可管理已驗證空耳。</p>
+<button type="button" class="btn btn-secondary" @onclick="SignOutAsync">返回登入</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+    }
+
+    private async Task SignOutAsync()
+    {
+        await SessionState.ClearAsync();
+        Nav.NavigateTo("/login");
+    }
+}

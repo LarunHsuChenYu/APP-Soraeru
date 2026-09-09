@@ -1,0 +1,222 @@
+@page "/accounts"
+@using Soraeru.Curator.Api
+@inject ICuratorApiClient Api
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>帳號 — Soraeru 策展</PageTitle>
+
+@if (!EnsureAccess())
+{
+    return;
+}
+
+<h1>帳號</h1>
+<p class="text-muted">
+    管理共用 API 資料庫中的使用者。開發者旗標寫入 DB（並調整每日額度）；登入時與 <code>DeveloperAccounts</code> 取聯集。
+</p>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+@if (!string.IsNullOrWhiteSpace(_ok))
+{
+    <div class="alert alert-success">@_ok</div>
+}
+
+@if (_items is null)
+{
+    <p>載入中…</p>
+}
+else if (_items.Count == 0)
+{
+    <p class="text-muted">尚無帳號。</p>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>顯示名</th>
+                <th>開發者</th>
+                <th>每日額度</th>
+                <th>導覽完成</th>
+                <th>密碼</th>
+                <th>建立時間</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _items)
+            {
+                <tr>
+                    <td>@item.Email</td>
+                    <td>@item.DisplayName</td>
+                    <td>@(item.IsDeveloper ? "是" : "否")</td>
+                    <td>@(FormatQuota(item.DailyQuota))</td>
+                    <td>@(item.OnboardingCompleted ? "是" : "否")</td>
+                    <td>@(item.HasPassword ? "有" : "僅 Google")</td>
+                    <td>@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                    <td class="text-nowrap">
+                        <button type="button" class="btn btn-link btn-sm p-0"
+                                @onclick="() => ToggleDeveloperAsync(item)"
+                                disabled="@_busy">
+                            @(item.IsDeveloper ? "取消開發者" : "設為開發者")
+                        </button>
+                        <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                                @onclick="() => BeginReset(item)"
+                                disabled="@_busy">
+                            重置密碼
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (_resetTarget is not null)
+{
+    <div class="card mt-3" style="max-width: 28rem;">
+        <div class="card-body">
+            <h2 class="h5">重置密碼</h2>
+            <p class="text-muted mb-2">@_resetTarget.Email</p>
+            <div class="mb-2">
+                <label class="form-label" for="newPwd">新密碼（至少 8 字）</label>
+                <InputText id="newPwd" type="password" class="form-control" @bind-Value="_newPassword" autocomplete="new-password" />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" @onclick="ConfirmResetAsync" disabled="@_busy">確認重置</button>
+            <button type="button" class="btn btn-link btn-sm" @onclick="CancelReset" disabled="@_busy">取消</button>
+        </div>
+    </div>
+}
+
+@code {
+    private IReadOnlyList<CuratorUserDto>? _items;
+    private string? _error;
+    private string? _ok;
+    private bool _busy;
+    private CuratorUserDto? _resetTarget;
+    private string _newPassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (!EnsureAccess())
+        {
+            return;
+        }
+
+        await LoadAsync();
+    }
+
+    private bool EnsureAccess()
+    {
+        if (SessionState.CanEnterMaintenance)
+        {
+            return true;
+        }
+
+        Nav.NavigateTo(SessionState.Session is null ? "/login" : "/access-denied");
+        return false;
+    }
+
+    private async Task LoadAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var result = await Api.ListUsersAsync(SessionState.Session!.AccessToken);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "載入失敗。";
+                return;
+            }
+
+            _items = result.Value;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ToggleDeveloperAsync(CuratorUserDto item)
+    {
+        _busy = true;
+        _error = null;
+        _ok = null;
+        try
+        {
+            var result = await Api.SetDeveloperAsync(
+                SessionState.Session!.AccessToken,
+                item.Id,
+                !item.IsDeveloper);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "更新失敗。";
+                return;
+            }
+
+            _ok = result.Value.IsDeveloper
+                ? $"已將 {result.Value.Email} 設為開發者（無限額度）。"
+                : $"已取消 {result.Value.Email} 的開發者旗標（免費額度）。";
+            await LoadAsync();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void BeginReset(CuratorUserDto item)
+    {
+        _resetTarget = item;
+        _newPassword = "";
+        _error = null;
+        _ok = null;
+    }
+
+    private void CancelReset()
+    {
+        _resetTarget = null;
+        _newPassword = "";
+    }
+
+    private async Task ConfirmResetAsync()
+    {
+        if (_resetTarget is null)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        _ok = null;
+        try
+        {
+            var result = await Api.ResetUserPasswordAsync(
+                SessionState.Session!.AccessToken,
+                _resetTarget.Id,
+                _newPassword);
+            if (!result.IsSuccess)
+            {
+                _error = result.ErrorMessage ?? "重置失敗。";
+                return;
+            }
+
+            _ok = $"已重置 {_resetTarget.Email} 的密碼。";
+            CancelReset();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static string FormatQuota(int quota) =>
+        quota >= int.MaxValue / 2 ? "無限" : quota.ToString();
+}

@@ -29,6 +29,8 @@ dotnet user-secrets set "Llm:BaseUrl" "https://generativelanguage.googleapis.com
 
 `appsettings*.json` 的 `Llm:ApiKey` 請保持空字串；真實金鑰只放 User Secrets／環境變數。
 
+**執行期覆寫（策展後台）：** 允許清單帳號可在策展站 `/llm-settings` 寫入 SQLite 覆寫 ApiKey／Model／BaseUrl，**立刻生效**（ADR-0013）。用量見 `/llm-usage`。
+
 ## 3. 啟動 API
 
 ```powershell

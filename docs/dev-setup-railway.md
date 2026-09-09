@@ -96,4 +96,51 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 
 ## 6. CORS（現在空、Web 之後）
 
-`Cors:AllowedOrigins` 預設空陣列 → **不加**跨域中介，Android App 不受影響。Web 學習端上線後再設 `Cors__AllowedOrigins__0`。
+`Cors:AllowedOrigins` 預設空陣列 → **不加**跨域中介，Android App 不受影響。
+**策展 Blazor Server** 以伺服器端 `HttpClient` 打 API → **不必**為 Curator 加 CORS。
+票 06 **學習端 Web**（瀏覽器直打 API）上線後再設 `Cors__AllowedOrigins__0`。
+
+## 7. 策展服務（Curator＝票 05「Web」）
+
+與 ADR-0012／ADR-0009 一致：**同一個 repo、第二條 Railway 服務**；**共用既有 API**，不要新開第二套 API／Volume（除非要完整 staging）。
+
+### 第 1 階段：程式準備（本機完成，不部署）
+
+- [x] 根目錄 `Dockerfile.curator` 只 restore／publish `src/Soraeru.Curator`，不碰 MAUI workloads。
+- [x] `.dockerignore` 允許 Curator 進入 build context，並排除 `bin`／`obj`／DB／tmp／常見憑證檔。
+- [x] Curator 支援 Railway `PORT`，並提供匿名 `GET /health`。
+- [x] Production 不強制把 Railway 內部 HTTP 重新導向 HTTPS；公開 TLS 由 Railway termination。
+- [ ] 發版前重新執行 Curator tests／build、API build，以及可用時的 Curator Docker build。
+
+### 第 2 階段：Railway Dashboard（取得人工授權後執行）
+
+部署順序固定為 **既有 API → 新 Curator**：
+
+1. 先讓既有 **API 服務**使用含 `/api/v1/curator/*`（verified CRUD、LLM、accounts）的版本；確認 `GET https://airy-enjoyment-production-de0f.up.railway.app/health`＝200。保留既有 `/app/data` Volume 與單 replica。
+2. Canvas **+ New** → **GitHub Repo** → 選同一 repo，建立第二個服務（建議名稱 `soraeru-curator`）。
+3. Curator 服務 → **Settings → Source / Build**：
+   - Root Directory：留空（repo 根目錄）
+   - Builder：`Dockerfile`
+   - Dockerfile Path：`Dockerfile.curator`
+4. **不要掛 Volume**；Curator 只透過 HTTP 使用既有 API。
+5. Curator 服務 → **Variables**：
+
+| 變數 | 值 |
+|------|-----|
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ASPNETCORE_URLS` | `http://+:${{PORT}}`（程式也讀 `PORT`，雙保險） |
+| `Curator__ApiBaseUrl` | `https://airy-enjoyment-production-de0f.up.railway.app` |
+
+6. **Settings → Deploy → Healthcheck Path** 設 `/health`。
+7. **Settings → Networking → Generate Domain**，取得 `https://<curator>.up.railway.app`。
+8. 部署成功後先驗證 Curator `/health`＝200，再以允許清單 Email 登入，煙測金標 CRUD、LLM 設定／用量、帳號管理。
+
+### 日常更新
+
+| 變更範圍 | 動作 |
+|----------|------|
+| 只改 API／Infrastructure | push → **API 服務** Redeploy；EF `Migrate()` 啟動時跑；Volume 保留 |
+| 只改 Curator UI | push → **Curator 服務** Redeploy |
+| 兩者都改 | **先 API、再 Curator**，確保 Curator 依賴的端點已上線 |
+
+回滾：Railway Deployments → 上一成功版 Redeploy。SQLite Volume **不要**刪；分析記憶體快取會因 Redeploy 清空（已知限制）。

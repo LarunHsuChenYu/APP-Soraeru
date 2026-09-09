@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+@inject CuratorSessionState SessionState
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Soraeru 策展端</span>
+            @if (SessionState.Session is { } s)
+            {
+                <span class="small">@s.Email</span>
+            }
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    發生未處理的錯誤。
+    <a href="." class="reload">重新載入</a>
+    <span class="dismiss">🗙</span>
+</div>

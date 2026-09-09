@@ -6,11 +6,13 @@
     </Project>
     <Project Path="src/Soraeru.Application/Soraeru.Application.csproj" />
     <Project Path="src/Soraeru.ClientLogic/Soraeru.ClientLogic.csproj" />
+    <Project Path="src/Soraeru.Curator/Soraeru.Curator.csproj" />
     <Project Path="src/Soraeru.Infrastructure/Soraeru.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Soraeru.Application.Tests/Soraeru.Application.Tests.csproj" />
     <Project Path="tests/Soraeru.ClientLogic.Tests/Soraeru.ClientLogic.Tests.csproj" />
+    <Project Path="tests/Soraeru.Curator.Tests/Soraeru.Curator.Tests.csproj" />
     <Project Path="tests/Soraeru.Infrastructure.Tests/Soraeru.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>

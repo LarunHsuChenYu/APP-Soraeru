@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY nuget.config Directory.Build.props Directory.Build.targets ./
+COPY src/Soraeru.Curator/Soraeru.Curator.csproj src/Soraeru.Curator/
+
+RUN dotnet restore src/Soraeru.Curator/Soraeru.Curator.csproj
+
+COPY src/Soraeru.Curator/ src/Soraeru.Curator/
+
+RUN dotnet publish src/Soraeru.Curator/Soraeru.Curator.csproj -c Release -o /app/publish --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "Soraeru.Curator.dll"]

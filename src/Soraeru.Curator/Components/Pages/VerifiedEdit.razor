@@ -1,0 +1,174 @@
+@page "/verified/new"
+@page "/verified/{EntryId:guid}"
+@using Soraeru.Curator.Api
+@inject ICuratorApiClient Api
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>@(IsNew ? "新增" : "編輯")已驗證空耳 — Soraeru 策展</PageTitle>
+
+@if (!EnsureAccess())
+{
+    return;
+}
+
+<h1>@(IsNew ? "新增" : "編輯")已驗證空耳</h1>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+@if (_loading)
+{
+    <p>載入中…</p>
+}
+else
+{
+    <EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-3" style="max-width: 36rem;">
+        <div class="col-md-4">
+            <label class="form-label">語言</label>
+            <InputText class="form-control" @bind-Value="_form.Language" disabled="@(!IsNew)" />
+        </div>
+        <div class="col-md-8">
+            <label class="form-label">原詞</label>
+            <InputText class="form-control" @bind-Value="_form.SourceText" disabled="@(!IsNew)" />
+        </div>
+        <div class="col-12">
+            <label class="form-label">displayText</label>
+            <InputText class="form-control" @bind-Value="_form.DisplayText" />
+        </div>
+        <div class="col-12">
+            <label class="form-label">notationText</label>
+            <InputText class="form-control" @bind-Value="_form.NotationText" />
+        </div>
+        <div class="col-12">
+            <label class="form-label">explanation</label>
+            <InputTextArea class="form-control" rows="3" @bind-Value="_form.Explanation" />
+        </div>
+        <div class="col-12 form-check">
+            <InputCheckbox class="form-check-input" id="enabled" @bind-Value="_form.IsEnabled" />
+            <label class="form-check-label" for="enabled">啟用（可被分析命中）</label>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary" disabled="@_busy">儲存</button>
+            <a class="btn btn-link" href="verified">返回列表</a>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public Guid? EntryId { get; set; }
+
+    private bool IsNew => EntryId is null || EntryId == Guid.Empty;
+    private readonly FormModel _form = new();
+    private string? _error;
+    private bool _busy;
+    private bool _loading;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (!EnsureAccess())
+        {
+            return;
+        }
+
+        if (IsNew)
+        {
+            _loading = false;
+            return;
+        }
+
+        _loading = true;
+        _error = null;
+        try
+        {
+            var result = await Api.GetAsync(SessionState.Session!.AccessToken, EntryId!.Value);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "找不到條目。";
+                return;
+            }
+
+            var dto = result.Value;
+            _form.Language = dto.Language;
+            _form.SourceText = dto.SourceText;
+            _form.DisplayText = dto.DisplayText;
+            _form.NotationText = dto.NotationText;
+            _form.Explanation = dto.Explanation;
+            _form.IsEnabled = dto.IsEnabled;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private bool EnsureAccess()
+    {
+        if (SessionState.CanEnterMaintenance)
+        {
+            return true;
+        }
+
+        Nav.NavigateTo(SessionState.Session is null ? "/login" : "/access-denied");
+        return false;
+    }
+
+    private async Task SaveAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var token = SessionState.Session!.AccessToken;
+            CuratorApiResult<VerifiedMnemonicDto> result;
+            if (IsNew)
+            {
+                result = await Api.CreateAsync(
+                    token,
+                    new CreateVerifiedMnemonicRequest(
+                        _form.Language,
+                        _form.SourceText,
+                        _form.DisplayText,
+                        _form.NotationText,
+                        _form.Explanation,
+                        _form.IsEnabled));
+            }
+            else
+            {
+                result = await Api.UpdateAsync(
+                    token,
+                    EntryId!.Value,
+                    new UpdateVerifiedMnemonicRequest(
+                        _form.DisplayText,
+                        _form.NotationText,
+                        _form.Explanation,
+                        _form.IsEnabled));
+            }
+
+            if (!result.IsSuccess)
+            {
+                _error = result.ErrorMessage ?? "儲存失敗。";
+                return;
+            }
+
+            Nav.NavigateTo("/verified");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private sealed class FormModel
+    {
+        public string Language { get; set; } = "";
+        public string SourceText { get; set; } = "";
+        public string DisplayText { get; set; } = "";
+        public string NotationText { get; set; } = "";
+        public string Explanation { get; set; } = "";
+        public bool IsEnabled { get; set; } = true;
+    }
+}

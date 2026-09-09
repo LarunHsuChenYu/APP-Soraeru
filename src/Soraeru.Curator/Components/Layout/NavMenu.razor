@@ -1,0 +1,69 @@
+﻿@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Soraeru 策展</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        @if (SessionState.CanEnterMaintenance)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="verified" Match="NavLinkMatch.Prefix">
+                    已驗證空耳
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="verified/new">
+                    新增條目
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="llm-settings">
+                    LLM 設定
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="llm-usage">
+                    LLM 用量
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="accounts" Match="NavLinkMatch.Prefix">
+                    帳號
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <button type="button" class="nav-link btn btn-link text-start w-100" @onclick="SignOutAsync">
+                    登出
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login" Match="NavLinkMatch.All">
+                    登入
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+    }
+
+    private async Task SignOutAsync()
+    {
+        await SessionState.ClearAsync();
+        Nav.NavigateTo("/login");
+    }
+}

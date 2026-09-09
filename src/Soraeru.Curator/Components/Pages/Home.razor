@@ -1,0 +1,18 @@
+﻿@page "/"
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (SessionState.CanEnterMaintenance)
+        {
+            Nav.NavigateTo("/verified");
+        }
+        else
+        {
+            Nav.NavigateTo("/login");
+        }
+    }
+}

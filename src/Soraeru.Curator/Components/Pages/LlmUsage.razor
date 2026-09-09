@@ -1,0 +1,121 @@
+@page "/llm-usage"
+@using Soraeru.Curator.Api
+@inject ICuratorApiClient Api
+@inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+
+<PageTitle>LLM 用量 — Soraeru 策展</PageTitle>
+
+@if (!EnsureAccess())
+{
+    return;
+}
+
+<h1>LLM 用量</h1>
+<p class="text-muted">文字分析（text_analysis）呼叫紀錄；成本為粗估 NTD，非帳單。</p>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+@if (_page is not null)
+{
+    <div class="mb-3 p-3 border rounded" style="max-width: 36rem;">
+        <strong>今日（UTC 日起）</strong>
+        <ul class="mb-0">
+            <li>呼叫數：@_page.Today.Count</li>
+            <li>prompt tokens：@_page.Today.PromptTokens</li>
+            <li>completion tokens：@_page.Today.CompletionTokens</li>
+            <li>預估成本：@_page.Today.EstimatedCostNtd.ToString("0.####") NTD</li>
+        </ul>
+    </div>
+}
+
+<button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="LoadAsync" disabled="@_busy">重新整理</button>
+
+@if (_page is null)
+{
+    <p>載入中…</p>
+}
+else if (_page.Items.Count == 0)
+{
+    <p class="text-muted">尚無紀錄（分析成功呼叫 LLM 後會出現）。</p>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>時間</th>
+                <th>模型</th>
+                <th>tokens</th>
+                <th>延遲</th>
+                <th>結果</th>
+                <th>成本</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in _page.Items)
+            {
+                <tr>
+                    <td class="text-nowrap">@row.CreatedAtUtc.ToLocalTime().ToString("MM-dd HH:mm:ss")</td>
+                    <td>@row.Model</td>
+                    <td>@(row.PromptTokens ?? 0)/@(row.CompletionTokens ?? 0)</td>
+                    <td>@row.LatencyMs ms</td>
+                    <td>@(row.Success ? "OK" : row.ErrorCode)</td>
+                    <td>@row.EstimatedCostNtd.ToString("0.####")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private LlmUsagePageDto? _page;
+    private string? _error;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SessionState.EnsureHydratedAsync();
+        if (!EnsureAccess())
+        {
+            return;
+        }
+
+        await LoadAsync();
+    }
+
+    private bool EnsureAccess()
+    {
+        if (SessionState.CanEnterMaintenance)
+        {
+            return true;
+        }
+
+        Nav.NavigateTo(SessionState.Session is null ? "/login" : "/access-denied");
+        return false;
+    }
+
+    private async Task LoadAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            var result = await Api.GetLlmUsageAsync(SessionState.Session!.AccessToken, 50);
+            if (!result.IsSuccess || result.Value is null)
+            {
+                _error = result.ErrorMessage ?? "載入失敗。";
+                return;
+            }
+
+            _page = result.Value;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

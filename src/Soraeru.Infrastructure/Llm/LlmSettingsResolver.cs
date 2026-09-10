@@ -34,38 +34,6 @@ public sealed class LlmSettingsResolver : ILlmSettingsResolver
         var modelFromDb = !string.IsNullOrWhiteSpace(model);
         var baseUrlFromDb = !string.IsNullOrWhiteSpace(baseUrl);
 
-        // #region agent log
-        try
-        {
-            var line = System.Text.Json.JsonSerializer.Serialize(new
-            {
-                sessionId = "7ea34e",
-                hypothesisId = "H-DB-ONLY",
-                location = "LlmSettingsResolver.cs:ResolveAsync",
-                message = "Resolved LLM settings from SQLite only",
-                data = new
-                {
-                    apiKeyFromDb,
-                    modelFromDb,
-                    baseUrlFromDb,
-                    model,
-                    baseUrl,
-                    apiKeyMasked = apiKey.Length <= 8
-                        ? "(short-or-empty)"
-                        : $"{apiKey[..4]}…{apiKey[^4..]}",
-                    readsEnvForKeyModelBaseUrl = false
-                },
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                runId = "post-fix"
-            }) + Environment.NewLine;
-            File.AppendAllText(@"d:\VS\Soraeru\debug-7ea34e.log", line);
-        }
-        catch
-        {
-            // ignore
-        }
-        // #endregion
-
         return new LlmEffectiveSettings(
             ApiKey: apiKey,
             Model: model,

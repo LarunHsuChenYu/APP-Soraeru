@@ -141,57 +141,15 @@ else
                 ClearApiKey: false,
                 _form.Model,
                 _form.BaseUrl);
-
-            // #region agent log
-            await CuratorDebugLog.WriteAsync(
-                "H-DB-ONLY",
-                "LlmSettings.razor:SaveAsync:before",
-                "Curator save payload (DB-only, no secrets)",
-                new
-                {
-                    clearApiKey = false,
-                    hasIncomingApiKey = !string.IsNullOrWhiteSpace(body.ApiKey),
-                    incomingApiKeyLength = string.IsNullOrWhiteSpace(body.ApiKey) ? 0 : body.ApiKey!.Trim().Length,
-                    model = body.Model,
-                    baseUrl = body.BaseUrl,
-                    note = "DB is sole source; Railway Llm__* not used at request time"
-                });
-            // #endregion
-
             var result = await Api.UpdateLlmSettingsAsync(SessionState.Session!.AccessToken, body);
             if (!result.IsSuccess || result.Value is null)
             {
                 _error = result.ErrorMessage ?? "儲存失敗。";
-                // #region agent log
-                await CuratorDebugLog.WriteAsync(
-                    "H-E",
-                    "LlmSettings.razor:SaveAsync:failed",
-                    "Curator save failed",
-                    new { error = _error });
-                // #endregion
                 return;
             }
 
             _settings = result.Value;
             _ok = "已儲存至 SQLite，分析請求會立刻使用 DB 設定。";
-
-            // #region agent log
-            await CuratorDebugLog.WriteAsync(
-                "H-DB-ONLY",
-                "LlmSettings.razor:SaveAsync:after",
-                "Curator save response view",
-                new
-                {
-                    apiKeyMasked = _settings.ApiKeyMasked,
-                    apiKeyFromDatabase = _settings.ApiKeyFromDatabase,
-                    hasApiKeyConfigured = _settings.HasApiKeyConfigured,
-                    model = _settings.Model,
-                    modelFromDatabase = _settings.ModelFromDatabase,
-                    baseUrl = _settings.BaseUrl,
-                    baseUrlFromDatabase = _settings.BaseUrlFromDatabase
-                });
-            // #endregion
-
             _form.ApiKey = "";
             _form.Model = _settings.Model;
             _form.BaseUrl = _settings.BaseUrl;

@@ -191,7 +191,10 @@ static void AgentDebugLog(object payload)
 
     try
     {
-        File.AppendAllText("debug-1a7969.log", json + Environment.NewLine);
+        // Production container runs as non-root; /app is not writable.
+        File.AppendAllText(
+            Path.Combine(Path.GetTempPath(), "debug-1a7969.log"),
+            json + Environment.NewLine);
     }
     catch (Exception exception)
     {

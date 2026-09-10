@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject CuratorSessionState SessionState
+@implements IDisposable
 
 <div class="page">
     <div class="sidebar">
@@ -26,3 +27,15 @@
     <a href="." class="reload">重新載入</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        SessionState.Changed += OnSessionChanged;
+        await SessionState.EnsureHydratedAsync();
+    }
+
+    private void OnSessionChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => SessionState.Changed -= OnSessionChanged;
+}

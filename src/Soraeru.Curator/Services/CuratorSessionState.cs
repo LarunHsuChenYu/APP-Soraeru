@@ -19,6 +19,9 @@ public sealed class CuratorSessionState
 
     public bool CanEnterMaintenance => CuratorAccessGate.CanEnterMaintenance(Session);
 
+    /// <summary>Raised after session set, clear, or hydrate so layout/nav can refresh.</summary>
+    public event Action? Changed;
+
     public async Task EnsureHydratedAsync()
     {
         if (_hydrated)
@@ -39,6 +42,8 @@ public sealed class CuratorSessionState
         {
             // First render / JS unavailable — ignore.
         }
+
+        NotifyChanged();
     }
 
     public async Task SetAsync(CuratorSession session)
@@ -46,6 +51,7 @@ public sealed class CuratorSessionState
         Session = session;
         _hydrated = true;
         await _storage.SetAsync(StorageKey, session);
+        NotifyChanged();
     }
 
     public async Task ClearAsync()
@@ -53,5 +59,8 @@ public sealed class CuratorSessionState
         Session = null;
         _hydrated = true;
         await _storage.DeleteAsync(StorageKey);
+        NotifyChanged();
     }
+
+    private void NotifyChanged() => Changed?.Invoke();
 }

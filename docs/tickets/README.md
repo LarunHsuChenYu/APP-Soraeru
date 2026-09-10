@@ -1,25 +1,26 @@
-# Tickets — App-first MVP，其後再恢復 Web／策展
+# Tickets — App MVP 後恢復 Web／策展；上架軌並行
 
 Parent（App MVP）: [`docs/AI 空耳外語學習 APP－MVP 系統規劃書/Cursor-MVP App 規劃書.md`](../AI%20空耳外語學習%20APP－MVP%20系統規劃書/Cursor-MVP%20App%20規劃書.md)  
-Parent（信任閘／Web／策展，已交付子切片＋延後前端）: [`docs/specs/parallel-web-curator-trust.md`](../specs/parallel-web-curator-trust.md)  
+Parent（信任閘／Web／策展）: [`docs/specs/parallel-web-curator-trust.md`](../specs/parallel-web-curator-trust.md)  
 Parent（Client-first 單字本）: [`docs/specs/client-first-wordcards-sync.md`](../specs/client-first-wordcards-sync.md) · ADR-0007  
 Parent（同字再查／本機短路）: [`docs/specs/local-notebook-lookup-short-circuit.md`](../specs/local-notebook-lookup-short-circuit.md) · ADR-0008  
-Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)（0001–0009）
+Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)（0001–0012）
 
-## 總覽（2026-08-28）
+## 總覽（2026-09-10）
 
 | 指標 | 數量 |
 |---|---|
 | **done** | 15 |
-| **in-progress（WIP）** | 0（空） |
+| **in-progress（WIP）** | 1（05） |
 | **ready-for-agent** | 1（11） |
 | **blocked** | 1（12） |
-| **deferred** | 2（05、06） |
-| **完成率** | 15／19＝79%（不含 deferred：15／17＝88%） |
+| **deferred** | 1（06） |
+| **完成率** | 15／19＝79%（不含 deferred：15／18＝83%） |
 
 **Frontier：**
 
-- **[11](11-app-closed-testing.md)** — 封閉測試就緒與缺陷收斂（Railway API 已上線；Release 指 Railway；§15 整包仍待）
+- **[05](05-curator-blazor-crud.md)** — 策展端 Blazor Server：Railway 已上線；LLM／帳號／登入統計；金標 CRUD 煙測待勾
+- **[11](11-app-closed-testing.md)** — 封閉測試就緒與缺陷收斂（上架軌；可與 05 並行）
 
 ## 手動驗證快照（2026-08-21）
 
@@ -38,11 +39,11 @@ Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)�
 | L00／L09 | 黑塊已修 | `FloatingMnemonicBackground`／Analyzing 深色 wash 改淺色 Ellipse |
 | 首頁 Tab | 已修 | Shell 絕對路由強制回 L05（`//main/HomePage`） |
 
-## 策略（2026-08）
+## 策略（2026-09 更新）
 
-**先完成 Android App MVP**，再回頭做策展 Blazor（05）與 Web 學習端（06）。  
-04 的已驗證空耳 API 保留為 done（App 不經 Blazor 也能受益；策展暫可用 API）。  
-單字本長期形狀以 **ADR-0007 Client-first＋可選雲端同步** 為準（票 13–18；同字再查見 ADR-0008／票 18）；03 為歷史雲端鏡像基礎（done），不再視為「Server 擁有 App 卡」的終局。  
+App 功能閉環（07–10）已完成；**恢復策展 Blazor（05）**（宿主＝Blazor Server，ADR-0012）。Web 學習端（06）仍 deferred，待 05 後再開。  
+04 的已驗證空耳 API 為 done；05 補獨立 UI。上架軌（11–12）可與 Web／策展並行。  
+單字本長期形狀以 **ADR-0007 Client-first＋可選雲端同步** 為準（票 13–18；同字再查見 ADR-0008／票 18）。  
 明確不在本輪：iOS、Billing UI、完整 SRS、雲端 OCR、多 Agent、即時協同／CRDT。
 
 ## 工單進度主表
@@ -53,8 +54,8 @@ Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)�
 | [02](02-hard-gate-llm-draft.md) | 信任閘／基礎 | 後處理硬閘＋LLM 草稿標示 | done | `MnemonicHardGate`＋App 草稿橫幅已交付 | 已跑-有開放項 | 自動（Application.Tests）＋手動（草稿橫幅 UI） | 01 | — | **手動已驗證（08-13）**；Hangul 拒收文案已收斂；Standards 指出 EF Core 硬違規仍待後續收斂 | 0.5h（08-10）＋0.5h（08-13） |
 | [03](03-notebook-end-to-end.md) | 信任閘／基礎 | 單字本端到端可存可查（歷史雲端鏡像） | done | 雲端鏡像 CRUD 基礎；角色已由 13–15 重釋 | 未跑 | 自動+手動 | — | — | 語意已過渡至 Client-first | 0.75h（08-10） |
 | [04](04-verified-override-and-api.md) | 信任閘／基礎 | 已驗證空耳管理 API＋分析金標優先覆寫 | done | 策展 CRUD＋分析命中金標跳過 LLM | 已跑-有開放項 | 自動（Application.Tests）＋手動（verified 標示 UI） | 02 | 策展以 API 建金標後再驗標示 | **金標待策展建立**（非使用者自建；05 Blazor deferred） | 0.5h（08-11） |
-| [05](05-curator-blazor-crud.md) | Web／策展 | 策展端 Blazor：允許清單登入＋最小 CRUD | **deferred** | App-first 策略延後；過渡用 04 API | 不適用 | 手動（UI 煙測） | 04 done；App 07–10 | App MVP 後恢復 | — | — |
-| [06](06-web-learner-mvp1.md) | Web／策展 | Web 學習端薄 MVP1 | **deferred** | App-first 延後；單字本＝雲端鏡像過渡 | 不適用 | 手動（Web 煙測） | 02、03；App 07–10 | App MVP 後恢復 | — | — |
+| [05](05-curator-blazor-crud.md) | Web／策展 | 策展端 Blazor Server：金標 CRUD＋LLM 設定／用量 | **in-progress** | Railway 已部署；LLM／帳號／登入統計；側欄藏金標入口；金標端到端煙測待做 | 未跑 | 自動＋手動 | 04 done | Google 登入＋金標 CRUD demo 後勾 AC | 生產 Volume／靜態資源曾踩坑已修 | 3.0h（09-04）＋5.75h（09-09）＋1.75h（09-10） |
+| [06](06-web-learner-mvp1.md) | Web／策展 | Web 學習端薄 MVP1 | **deferred** | 等 05；單字本＝雲端鏡像過渡 | 不適用 | 手動（Web 煙測） | 02、03；建議 05 後 | 05 後恢復 | — | — |
 | [07](07-app-ocr-select-one.md) | App MVP | 裝置端 OCR 選一字進分析 | done | 混合 OCR；語系別文案；阿語翻拍預處理；西里爾短詞僅 ect/ест 校正 | 已跑-有開放項 | 自動+手動（實機 OCR 品質） | — | 西里爾三按鈕短詞仍可能失敗；多腳本實機品質 | **語言包約 37 MB**；螢幕翻拍／稀疏短詞不保證 | 0.5h（08-11）＋0.5h 規劃（08-13）＋1.5h（08-21）＋1.0h（08-24）＋3.75h（08-25）＋3.0h（08-26） |
 | [08](08-app-tts-formal-reading.md) | App MVP | 播放正式發音（系統 TTS） | done | 結果／詳情／列表系統 TTS 已接 | 已跑-有開放項 | 自動+手動（TTS 實機聽感／缺語音包提示） | — | — | **手動已驗證（08-13）**；缺語音包提示僅文字，尚無深連結 | 1.5h（08-12）＋0.25h（08-13） |
 | [09](09-app-regenerate-cap-and-errors.md) | App MVP | 同字重產 ≤3 與分析錯誤態 | done | `REGENERATION_LIMIT_EXCEEDED`＋App 錯誤態 | 已跑-有開放項 | 自動（App+API TDD）＋手動（達上限煙測） | — | — | **行為+UI 文案已修（08-13）**；缺 quota exceeded 行為測試 | 1.5h（08-12）＋1h（08-13） |
@@ -85,8 +86,8 @@ Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)�
                          │                                                  │
                          └──────────► 11 (封閉測試) ◄─ frontier ──► 12 (商店送審) │
                                                                               │
-05 (策展 Blazor) ── deferred（App 07–10 後） ◄───────────────────────────────┘
-06 (Web 薄 MVP1) ── deferred；單字本＝過渡期打雲端鏡像（ADR-0007） ◄── 02、03
+05 (策展 Blazor Server) ── in-progress（ADR-0012） ◄──────────────────────────┘
+06 (Web 薄 MVP1) ── deferred（建議 05 後）；鏡像過渡（ADR-0007） ◄── 02、03
 
 Client-first 單字本（App 主切片；與 08–10 平行安全）:
 
@@ -111,16 +112,14 @@ Client-first 單字本（App 主切片；與 08–10 平行安全）:
 | 同字再查／本機短路 | App 本機查鍵短路＋詳情重新分析已交付 | **18** done |
 | W5 設定／隱私／聲明 | 應用內隱私＋AI 聲明入口 | **10** done |
 | W6–W8 封閉測試／上架 | 未開始；單字本驗收對齊 ADR-0007 | **11–12** |
-| Web／策展 UI | 刻意延後；Web 單字本＝鏡像過渡 | **05–06 deferred** |
+| Web／策展 UI | 05 策展進行中；06 仍延後；Web 單字本＝鏡像過渡 | **05 in-progress；06 deferred** |
 
 ## Handoff → Station 4
 
-每次新 session：**一張** frontier 票 + 對應 parent（App 規劃書、parallel-web spec、client-first-wordcards-sync、或 local-notebook-lookup-short-circuit）+ Testing Decisions／規劃驗收 seam + 先紅測再實作。  
-  
-- **08–10**：08／09／10 done；**手動**：08／10 已驗證；09 行為已驗證且達上限按鈕文案已修（08-13）。  
-- **封閉測試（11）**：blocker 07–10 已全 done；Railway API 已上線；Release BaseAddress＝Railway；`tocc.top` SSL 憑證阻擋（不做 App bypass）；§15 整包尚待；若 APK 仍指 tocc.top 需再打包。  
-- **Client-first 串**：13–18 全 done；**16 手動已驗證**；13 明確登出**保留**本機 SoT（08-24）；斷網步驟見票 Notes；本機 SoT＝**SQLite**（08-26）。  
-- **04 金標**：待策展以 API 建立啟用條目後再驗 App verified 標示。  
-- **07 OCR**：ML Kit＋tessdata_fast 混合；語系別文案（08-25）；阿語翻拍預處理；西里爾短詞 **僅 ect/ест 校正**（08-26 review）；三按鈕例實機仍可能失敗。  
-- **L00／L09／首頁**：分析／Splash 背景黑塊已修（淺色 wash）；首頁 Tab 強制回 L05。  
-- 封閉測試（11）驗單字本時以 ADR-0007／13–18 為準，勿假定 Server 為 App SoT；同字再查以 ADR-0008／票 18 為準。
+每次新 session：**一張** frontier 票 + 對應 parent（parallel-web spec／ADR-0012 等）+ Testing Decisions＋先紅測再實作。
+
+- **05 策展（現行 WIP）**：Blazor Server 獨立站；Google→API JWT；允許清單＝`IsDeveloper`；CRUD 打 `/api/v1/curator/verified-mnemonics`；不另起後端。  
+- **06**：仍 deferred。  
+- **封閉測試（11）**：上架軌可並行；§15 整包尚待。  
+- **04 金標**：05 UI 上架後再驗 App verified 標示。  
+- Client-first（13–18）done；封閉測試驗單字本以 ADR-0007／0008 為準。

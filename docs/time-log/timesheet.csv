@@ -1,72 +1,84 @@
 date,person,hours,ticket,note,kind
-2026-08-04,Ashton,2,plan,（估計）多模型 MVP 規劃草稿開寫（Claude/ChatGPT）,backfill
-2026-08-05,Ashton,1.5,plan,（估計）Gemini MVP 規劃書,backfill
-2026-08-06,Ashton,2.5,plan,（估計）Cursor-MVP App 規劃書／多模型彙整,backfill
-2026-08-06,Ashton,1.5,plan,（估計）Stitch UI／設計資產與畫面,backfill
-2026-08-06,Ashton,1,setup,（估計）簡報素材＋App 源碼骨架起點,backfill
-2026-08-07,Ashton,1.5,plan,（估計）Clean Architecture 三層重整,backfill
-2026-08-07,Ashton,2.5,auth,（估計）Email Auth＋本機 DB／開發帳號,backfill
-2026-08-07,Ashton,2,auth,（估計）Google 登入端到端與綁定流程,backfill
-2026-08-07,Ashton,0.5,setup,（估計）Splash L00／VS 建置與啟動雜項,backfill
-2026-08-10,Ashton,1.5,auth,（估計）Google DEVELOPER_ERROR／SHA1／實機登入除錯,backfill
-2026-08-10,Ashton,0.5,setup,（估計）MAUI／Android 建置修復,backfill
-2026-08-10,Ashton,2.5,prompt,（估計）空耳 analyze／多語 prompt eval（A–H）與 v1.x 迭代,backfill
-2026-08-10,Ashton,1.5,planning,（估計）grill＋Glossary/ADR＋平行 Web／信任閘規格與拆票,backfill
-2026-08-10,Ashton,0.25,01,（估計）Application 測試骨架（prefactor）,backfill
-2026-08-10,Ashton,0.5,02,（估計）後處理硬閘＋LLM 草稿標示,backfill
-2026-08-10,Ashton,0.75,03,（估計）單字本端到端可存可查,backfill
-2026-08-11,Ashton,0.5,04,（估計）已驗證空耳 API／覆寫驗收收尾,backfill
-2026-08-11,Ashton,0.5,tickets,（估計）App-first 策略＋票 07–12 重整,backfill
-2026-08-11,Ashton,0.5,07,（估計）App 裝置端 OCR 選一字進分析,backfill
-2026-08-11,Ashton,0.25,misc,建立 docs/time-log 工時帳骨架,ops
-2026-08-11,Ashton,0.75,13,票13殘餘：刪帳 DELETE /me＋Settings UI＋SessionAuthGate Splash/Settings 測,dev
-2026-08-11,Ashton,0.75,planning,ADR-0007 Client-first 拷問＋薄規格＋glossary,plan
-2026-08-11,Ashton,0.5,tickets,to-tickets 拆票 13–17＋README frontier,plan
-2026-08-11,Ashton,2.25,13,票13：本機 WordCard SoT 列表／存／刪＋review 補洞（Splash 離線／session 清庫／同字重存 mnemonic）,dev
-2026-08-11,Ashton,2.5,misc,Stitch 粗對齊：WordInput＋Login/Register/Forgot/ImagePick/OCR/Settings 多頁,dev
-2026-08-11,Ashton,1.25,13,Stitch：NotebookList 細節＋動態語言 chip＋Shell 底欄；NotebookDetail 卡片化,dev
-2026-08-11,Ashton,1.25,misc,Stitch：Analyzing＋FloatingMnemonicBackground（正弦漂浮）＋AnalysisResult 對齊,dev
-2026-08-11,Ashton,1,setup,"API 預設 http 5080／health／根 redirect；NuGet MAX_PATH 硬化（fix-nuget-path、Directory.Build.*、docs）；錯誤22排查",ops
-2026-08-12,Ashton,1.5,08,票08：系統 TTS 正式發音（ClientLogic locale＋結果頁／詳情／列表）,dev
-2026-08-12,Ashton,1.5,09,票09：同字重產≤3＋REGENERATION_LIMIT／額度錯誤態（App+API TDD）,dev
-2026-08-12,Ashton,1.25,10,票10：隱私／AI聲明應用內頁＋登入設定入口（TDD LegalDocuments）,dev
-2026-08-12,Ashton,1.5,14,票14：整卡 LWW／tombstone 合併＋推拉協調（假鏡像）＋換帳隔離＋App 前景觸發,dev
-2026-08-12,Ashton,2.5,15,票15：Server Notebook 雲端鏡像推拉（LWW/tombstone/migration）＋HttpCloudWordCardMirror,dev
-2026-08-12,Ashton,1,16,票16：詳情頁編修個人空耳（UpdateSelectedMnemonic＋UI TDD）,dev
-2026-08-12,Ashton,0.75,17,票17：金標不覆蓋已存卡個人空耳（Save 同鍵保全＋TDD 回歸）,dev
-2026-08-12,Ashton,1.5,18,票18：本機短路查鍵＋詳情重新分析（ClientLogic TDD＋App 接線）,dev
-2026-08-13,Ashton,0.5,02,手動驗證＋韓文硬閘文案／允許注音腳本,dev
-2026-08-13,Ashton,0.25,08,手動驗證系統 TTS 正式發音,dev
-2026-08-13,Ashton,1,09,達上限行為驗證＋詳情／結果「已達分析上限」文案修復,dev
-2026-08-13,Ashton,0.25,10,手動驗證隱私權／AI 內容聲明頁,dev
-2026-08-13,Ashton,0.25,16,手動驗證詳情編修個人空耳,dev
-2026-08-13,Ashton,1.5,13,"單字本語言>5下拉／注音橫排；阿語 AutomationId 重複設值缺陷調查（WIP）",dev
-2026-08-13,Ashton,1.25,misc,L00／L09 動畫黑塊淺色修＋首頁 Tab 強制回 L05（Shell 絕對路由）,dev
-2026-08-13,Ashton,0.5,07,（規劃）OCR 多語中期方案討論：亞洲語言包；尚未落地實作,plan
-2026-08-13,Ashton,0.5,11,封閉測試前缺陷收斂紀錄與手動驗證快照,dev
-2026-08-14,Ashton,0.75,plan,對照 Railway+Docker+SQLite Volume 盤點 API 現況；寫部署計畫並比較 Fly/Render/VPS（未實作 Dockerfile）,plan
-2026-08-21,Ashton,1.5,07,混合 OCR（tessdata_fast＋ML Kit/Tesseract）＋session 清空＋來源語自動預選,dev
-2026-08-21,Ashton,0.75,13,語言>5 picker AutomationId 重複設值修復；確認本機單字卡為 JSON 非 SQLite,dev
-2026-08-21,Ashton,0.25,11,封閉測試前缺陷收斂：列表讀取失敗已修＋OCR 交付備註,dev
-2026-08-24,Ashton,0.75,setup,Railway API：Dockerfile／PORT／CORS／Volume 文件與本機 API 建置,ops
-2026-08-24,Ashton,0.5,setup,Railway Railpack 誤判排查＋Dockerfile 部署成功（Volume／網域／health）,ops
-2026-08-24,Ashton,0.5,11,App Release 改打 Railway API＋產出封閉測試 Signed APK,ops
-2026-08-24,Ashton,0.5,11,tocc.top 自訂網域 APK 嘗試；診斷 SSL 主機名不符（憑證問題、不做 App bypass）,ops
-2026-08-24,Ashton,0.75,13,登出不清本機SoT＋Login後Sync；修單字本登出重登消失／間歇,dev
-2026-08-24,Ashton,0.5,13,登入後單字本列表強制重載（RefreshGate＋Shell Reset）；第一時間空白,dev
-2026-08-24,Ashton,1.0,07,OCR 同圖重選 UX：OcrSessionRetention＋結果／詳情 CTA＋Analyzing 導航修,dev
-2026-08-24,Ashton,0.25,11,改回 Railway URL 並重打 Signed APK（tocc.top SSL 暫緩）,ops
-2026-08-25,Ashton,1.5,07,OCR P0~P2：Hybrid 路由／ru·es／腳本族／spa／品質提示 stub（TDD）,dev
-2026-08-25,Ashton,2.0,07,OCR 腳本族擴充＋可搜尋來源語＋按需 tessdata／ADR0010（TDD）,dev
-2026-08-25,Ashton,0.25,07,語系別文案＋阿語螢幕翻拍本機預處理／錯誤提示,dev
-2026-08-25,Ashton,0.25,10,登入／註冊 email 系統深色模式白字防禦,dev
-2026-08-26,Ashton,0.75,11,上午 Release APK 實機包（Debug改Release、Signed 路徑）,ops
-2026-08-26,Ashton,0.5,07,西里爾三按鈕短詞漏識調查（ест／ect）,dev
-2026-08-26,Ashton,0.25,misc,專案 skill：改程式後自動打 Release APK,ops
-2026-08-26,Ashton,2.5,07,西里爾 OCR 多輪：切塊／誤識 токо·ОКО；review 後刪單詞映射、僅 ect/ест 校正,dev
-2026-08-26,Ashton,0.25,10,設定頁版本 v1.0.1＋成型時間 yyyy/MM/dd-HH:mm,dev
-2026-08-26,Ashton,0.25,11,午後多輪 Release APK 側載驗證,ops
-2026-08-26,Ashton,0.25,tickets,收工：工單／工時對齊並提交改動,plan
-2026-08-28,Ashton,1.75,19,票19：Logo prompt＋MAUI icon／splash＋L00／L01／L04 與 Stitch logo 同步,dev
-2026-08-28,Ashton,0.25,04,DeveloperAccounts 新增 aben8622@gmail.com（策展權限）,dev
-2026-08-28,Ashton,0.75,11,VS 建置雜訊 vs obj 快取損壞排查；Release APK 成功；釐清 App vs Api bin 路徑,ops
+2026-08-04,Ashton,2,plan,ï¼ä¼°è¨ï¼å¤æ¨¡å MVP è¦åèç¨¿éå¯«ï¼Claude/ChatGPTï¼,backfill
+2026-08-05,Ashton,1.5,plan,ï¼ä¼°è¨ï¼Gemini MVP è¦åæ¸,backfill
+2026-08-06,Ashton,2.5,plan,ï¼ä¼°è¨ï¼Cursor-MVP App è¦åæ¸ï¼å¤æ¨¡åå½æ´,backfill
+2026-08-06,Ashton,1.5,plan,ï¼ä¼°è¨ï¼Stitch UIï¼è¨­è¨è³ç¢èç«é¢,backfill
+2026-08-06,Ashton,1,setup,ï¼ä¼°è¨ï¼ç°¡å ±ç´ æï¼App æºç¢¼éª¨æ¶èµ·é»,backfill
+2026-08-07,Ashton,1.5,plan,ï¼ä¼°è¨ï¼Clean Architecture ä¸å±¤éæ´,backfill
+2026-08-07,Ashton,2.5,auth,ï¼ä¼°è¨ï¼Email Authï¼æ¬æ© DBï¼éç¼å¸³è,backfill
+2026-08-07,Ashton,2,auth,ï¼ä¼°è¨ï¼Google ç»å¥ç«¯å°ç«¯èç¶å®æµç¨,backfill
+2026-08-07,Ashton,0.5,setup,ï¼ä¼°è¨ï¼Splash L00ï¼VS å»ºç½®èååéé ,backfill
+2026-08-10,Ashton,1.5,auth,ï¼ä¼°è¨ï¼Google DEVELOPER_ERRORï¼SHA1ï¼å¯¦æ©ç»å¥é¤é¯,backfill
+2026-08-10,Ashton,0.5,setup,ï¼ä¼°è¨ï¼MAUIï¼Android å»ºç½®ä¿®å¾©,backfill
+2026-08-10,Ashton,2.5,prompt,ï¼ä¼°è¨ï¼ç©ºè³ analyzeï¼å¤èª prompt evalï¼AâHï¼è v1.x è¿­ä»£,backfill
+2026-08-10,Ashton,1.5,planning,ï¼ä¼°è¨ï¼grillï¼Glossary/ADRï¼å¹³è¡ Webï¼ä¿¡ä»»éè¦æ ¼èæç¥¨,backfill
+2026-08-10,Ashton,0.25,01,ï¼ä¼°è¨ï¼Application æ¸¬è©¦éª¨æ¶ï¼prefactorï¼,backfill
+2026-08-10,Ashton,0.5,02,ï¼ä¼°è¨ï¼å¾èçç¡¬éï¼LLM èç¨¿æ¨ç¤º,backfill
+2026-08-10,Ashton,0.75,03,ï¼ä¼°è¨ï¼å®å­æ¬ç«¯å°ç«¯å¯å­å¯æ¥,backfill
+2026-08-11,Ashton,0.5,04,ï¼ä¼°è¨ï¼å·²é©è­ç©ºè³ APIï¼è¦å¯«é©æ¶æ¶å°¾,backfill
+2026-08-11,Ashton,0.5,tickets,ï¼ä¼°è¨ï¼App-first ç­ç¥ï¼ç¥¨ 07â12 éæ´,backfill
+2026-08-11,Ashton,0.5,07,ï¼ä¼°è¨ï¼App è£ç½®ç«¯ OCR é¸ä¸å­é²åæ,backfill
+2026-08-11,Ashton,0.25,misc,å»ºç« docs/time-log å·¥æå¸³éª¨æ¶,ops
+2026-08-11,Ashton,0.75,13,ç¥¨13æ®é¤ï¼åªå¸³ DELETE /meï¼Settings UIï¼SessionAuthGate Splash/Settings æ¸¬,dev
+2026-08-11,Ashton,0.75,planning,ADR-0007 Client-first æ·åï¼èè¦æ ¼ï¼glossary,plan
+2026-08-11,Ashton,0.5,tickets,to-tickets æç¥¨ 13â17ï¼README frontier,plan
+2026-08-11,Ashton,2.25,13,ç¥¨13ï¼æ¬æ© WordCard SoT åè¡¨ï¼å­ï¼åªï¼review è£æ´ï¼Splash é¢ç·ï¼session æ¸åº«ï¼åå­éå­ mnemonicï¼,dev
+2026-08-11,Ashton,2.5,misc,Stitch ç²å°é½ï¼WordInputï¼Login/Register/Forgot/ImagePick/OCR/Settings å¤é ,dev
+2026-08-11,Ashton,1.25,13,Stitchï¼NotebookList ç´°ç¯ï¼åæèªè¨ chipï¼Shell åºæ¬ï¼NotebookDetail å¡çå,dev
+2026-08-11,Ashton,1.25,misc,Stitchï¼Analyzingï¼FloatingMnemonicBackgroundï¼æ­£å¼¦æ¼æµ®ï¼ï¼AnalysisResult å°é½,dev
+2026-08-11,Ashton,1,setup,"API é è¨­ http 5080ï¼healthï¼æ ¹ redirectï¼NuGet MAX_PATH ç¡¬åï¼fix-nuget-pathãDirectory.Build.*ãdocsï¼ï¼é¯èª¤22ææ¥",ops
+2026-08-12,Ashton,1.5,08,ç¥¨08ï¼ç³»çµ± TTS æ­£å¼ç¼é³ï¼ClientLogic localeï¼çµæé ï¼è©³æï¼åè¡¨ï¼,dev
+2026-08-12,Ashton,1.5,09,ç¥¨09ï¼åå­éç¢â¤3ï¼REGENERATION_LIMITï¼é¡åº¦é¯èª¤æï¼App+API TDDï¼,dev
+2026-08-12,Ashton,1.25,10,ç¥¨10ï¼é±ç§ï¼AIè²ææç¨å§é ï¼ç»å¥è¨­å®å¥å£ï¼TDD LegalDocumentsï¼,dev
+2026-08-12,Ashton,1.5,14,ç¥¨14ï¼æ´å¡ LWWï¼tombstone åä½µï¼æ¨æåèª¿ï¼åé¡åï¼ï¼æå¸³éé¢ï¼App åæ¯è§¸ç¼,dev
+2026-08-12,Ashton,2.5,15,ç¥¨15ï¼Server Notebook é²ç«¯é¡åæ¨æï¼LWW/tombstone/migrationï¼ï¼HttpCloudWordCardMirror,dev
+2026-08-12,Ashton,1,16,ç¥¨16ï¼è©³æé ç·¨ä¿®åäººç©ºè³ï¼UpdateSelectedMnemonicï¼UI TDDï¼,dev
+2026-08-12,Ashton,0.75,17,ç¥¨17ï¼éæ¨ä¸è¦èå·²å­å¡åäººç©ºè³ï¼Save åéµä¿å¨ï¼TDD åæ­¸ï¼,dev
+2026-08-12,Ashton,1.5,18,ç¥¨18ï¼æ¬æ©ç­è·¯æ¥éµï¼è©³æéæ°åæï¼ClientLogic TDDï¼App æ¥ç·ï¼,dev
+2026-08-13,Ashton,0.5,02,æåé©è­ï¼éæç¡¬éææ¡ï¼åè¨±æ³¨é³è³æ¬,dev
+2026-08-13,Ashton,0.25,08,æåé©è­ç³»çµ± TTS æ­£å¼ç¼é³,dev
+2026-08-13,Ashton,1,09,éä¸éè¡çºé©è­ï¼è©³æï¼çµæãå·²éåæä¸éãææ¡ä¿®å¾©,dev
+2026-08-13,Ashton,0.25,10,æåé©è­é±ç§æ¬ï¼AI å§å®¹è²æé ,dev
+2026-08-13,Ashton,0.25,16,æåé©è­è©³æç·¨ä¿®åäººç©ºè³,dev
+2026-08-13,Ashton,1.5,13,"å®å­æ¬èªè¨>5ä¸æï¼æ³¨é³æ©«æï¼é¿èª AutomationId éè¤è¨­å¼ç¼ºé·èª¿æ¥ï¼WIPï¼",dev
+2026-08-13,Ashton,1.25,misc,L00ï¼L09 åç«é»å¡æ·ºè²ä¿®ï¼é¦é  Tab å¼·å¶å L05ï¼Shell çµå°è·¯ç±ï¼,dev
+2026-08-13,Ashton,0.5,07,ï¼è¦åï¼OCR å¤èªä¸­ææ¹æ¡è¨è«ï¼äºæ´²èªè¨åï¼å°æªè½å°å¯¦ä½,plan
+2026-08-13,Ashton,0.5,11,å°éæ¸¬è©¦åç¼ºé·æ¶æç´éèæåé©è­å¿«ç§,dev
+2026-08-14,Ashton,0.75,plan,å°ç§ Railway+Docker+SQLite Volume ç¤é» API ç¾æ³ï¼å¯«é¨ç½²è¨ç«ä¸¦æ¯è¼ Fly/Render/VPSï¼æªå¯¦ä½ Dockerfileï¼,plan
+2026-08-21,Ashton,1.5,07,æ··å OCRï¼tessdata_fastï¼ML Kit/Tesseractï¼ï¼session æ¸ç©ºï¼ä¾æºèªèªåé é¸,dev
+2026-08-21,Ashton,0.75,13,èªè¨>5 picker AutomationId éè¤è¨­å¼ä¿®å¾©ï¼ç¢ºèªæ¬æ©å®å­å¡çº JSON é SQLite,dev
+2026-08-21,Ashton,0.25,11,å°éæ¸¬è©¦åç¼ºé·æ¶æï¼åè¡¨è®åå¤±æå·²ä¿®ï¼OCR äº¤ä»åè¨»,dev
+2026-08-24,Ashton,0.75,setup,Railway APIï¼Dockerfileï¼PORTï¼CORSï¼Volume æä»¶èæ¬æ© API å»ºç½®,ops
+2026-08-24,Ashton,0.5,setup,Railway Railpack èª¤å¤ææ¥ï¼Dockerfile é¨ç½²æåï¼Volumeï¼ç¶²åï¼healthï¼,ops
+2026-08-24,Ashton,0.5,11,App Release æ¹æ Railway APIï¼ç¢åºå°éæ¸¬è©¦ Signed APK,ops
+2026-08-24,Ashton,0.5,11,tocc.top èªè¨ç¶²å APK åè©¦ï¼è¨ºæ· SSL ä¸»æ©åä¸ç¬¦ï¼æè­åé¡ãä¸å App bypassï¼,ops
+2026-08-24,Ashton,0.75,13,ç»åºä¸æ¸æ¬æ©SoTï¼Loginå¾Syncï¼ä¿®å®å­æ¬ç»åºéç»æ¶å¤±ï¼éæ­,dev
+2026-08-24,Ashton,0.5,13,ç»å¥å¾å®å­æ¬åè¡¨å¼·å¶éè¼ï¼RefreshGateï¼Shell Resetï¼ï¼ç¬¬ä¸æéç©ºç½,dev
+2026-08-24,Ashton,1.0,07,OCR ååéé¸ UXï¼OcrSessionRetentionï¼çµæï¼è©³æ CTAï¼Analyzing å°èªä¿®,dev
+2026-08-24,Ashton,0.25,11,æ¹å Railway URL ä¸¦éæ Signed APKï¼tocc.top SSL æ«ç·©ï¼,ops
+2026-08-25,Ashton,1.5,07,OCR P0~P2ï¼Hybrid è·¯ç±ï¼ruÂ·esï¼è³æ¬æï¼spaï¼åè³ªæç¤º stubï¼TDDï¼,dev
+2026-08-25,Ashton,2.0,07,OCR è³æ¬ææ´åï¼å¯æå°ä¾æºèªï¼æé tessdataï¼ADR0010ï¼TDDï¼,dev
+2026-08-25,Ashton,0.25,07,èªç³»å¥ææ¡ï¼é¿èªè¢å¹ç¿»ææ¬æ©é èçï¼é¯èª¤æç¤º,dev
+2026-08-25,Ashton,0.25,10,ç»å¥ï¼è¨»å email ç³»çµ±æ·±è²æ¨¡å¼ç½å­é²ç¦¦,dev
+2026-08-26,Ashton,0.75,11,ä¸å Release APK å¯¦æ©åï¼Debugæ¹ReleaseãSigned è·¯å¾ï¼,ops
+2026-08-26,Ashton,0.5,07,è¥¿éç¾ä¸æéç­è©æ¼è­èª¿æ¥ï¼ÐµÑÑï¼ectï¼,dev
+2026-08-26,Ashton,0.25,misc,å°æ¡ skillï¼æ¹ç¨å¼å¾èªåæ Release APK,ops
+2026-08-26,Ashton,2.5,07,è¥¿éç¾ OCR å¤è¼ªï¼åå¡ï¼èª¤è­ ÑÐ¾ÐºÐ¾Â·ÐÐÐï¼review å¾åªå®è©æ å°ãå ect/ÐµÑÑ æ ¡æ­£,dev
+2026-08-26,Ashton,0.25,10,è¨­å®é çæ¬ v1.0.1ï¼æåæé yyyy/MM/dd-HH:mm,dev
+2026-08-26,Ashton,0.25,11,åå¾å¤è¼ª Release APK å´è¼é©è­,ops
+2026-08-26,Ashton,0.25,tickets,æ¶å·¥ï¼å·¥å®ï¼å·¥æå°é½ä¸¦æäº¤æ¹å,plan
+2026-08-28,Ashton,1.75,19,ç¥¨19ï¼Logo promptï¼MAUI iconï¼splashï¼L00ï¼L01ï¼L04 è Stitch logo åæ­¥,dev
+2026-08-28,Ashton,0.25,04,DeveloperAccounts æ°å¢ aben8622@gmail.comï¼ç­å±æ¬éï¼,dev
+2026-08-28,Ashton,0.75,11,VS å»ºç½®éè¨ vs obj å¿«åæå£ææ¥ï¼Release APK æåï¼éæ¸ App vs Api bin è·¯å¾,ops
+2026-09-04,Ashton,1.5,05,策展 Blazor Server 開工：ADR-0012、閘門/API client TDD、登入與 CRUD UI scaffold,dev
+2026-09-04,Ashton,1.5,05,LLM 用量＋SQLite 執行期 ApiKey/Model/BaseUrl（ADR-0013）＋策展頁,dev
+2026-08-31,Ashton,0.5,prompt,（估計）LLM／上傳圖錯誤排查（Gemini 日誌）,backfill
+2026-08-31,Ashton,1.75,plan,（估計）Pro／混合獲利訂閱方案對齊與 Docx,backfill
+2026-09-01,Ashton,0.25,misc,（估計）套件名與顯示名改「空耳聯合國」,backfill
+2026-09-01,Ashton,3.5,ops,（估計）LLM 503／Railway 變數／Gemini·Groq·JSON 修復與部署,backfill
+2026-09-02,Ashton,2.5,ops,（估計）雙遠端 GitHub 同步（個人＋Soraeru-Development）,backfill
+2026-09-02,Ashton,2.0,plan,（估計）Hermes／AI 訂閱定價研究,backfill
+2026-09-09,Ashton,5.75,05,（估計）Curator Railway 部署：Volume、靜態資源 404、登入煙測,backfill
+2026-09-10,Ashton,1.75,05,（估計）LLM 用量／Navi 修復＋帳號登入統計＋側欄精簡,backfill
+2026-09-10,Ashton,0.25,misc,（估計）App 簡易使用說明書 DOCX,backfill
+2026-09-10,Ashton,0.25,tickets,工時補登（transcript 稽核）與票05進度對齊,plan

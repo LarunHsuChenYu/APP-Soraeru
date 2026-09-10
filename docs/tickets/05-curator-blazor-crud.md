@@ -6,9 +6,9 @@
 
 **Status:** in-progress
 
-## Resume（2026-09-04）
+## Resume（2026-09-10）
 
-App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖定 **Blazor Server**（ADR-0012）。過渡期 API 仍可用；本票補獨立策展 UI。擴充選 A：LLM 設定寫入 SQLite 立刻生效。
+App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖定 **Blazor Server**（ADR-0012）。策展站已上 Railway（`soraeru-curator`）；共用 API 仍掛既有 Railway 服務。擴充選 A：LLM 設定寫入 SQLite 立刻生效。
 
 ## Parent
 
@@ -18,27 +18,31 @@ App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖
 
 新建並分開部署的策展端 Blazor Server 應用。流程：Google 登入（本機可輔以 Email）→ email ∈ 允許清單（`IsDeveloper`／`DeveloperAccounts`）才進入維護 UI；對 04 的管理 API 做最小 CRUD 畫面（語言、原詞、displayText、notationText、explanation、啟用／下架、列表／搜尋）。非允許清單不得使用策展 UI。不開社群投稿／審核佇列。驗證上架後，學習者側分析同鍵命中行為已由 04 保證；本票以策展者操作路徑可 demo 為驗收。
 
-另：策展可檢視 `LlmUsage`、變更執行期 LLM ApiKey／Model／BaseUrl（SQLite 覆寫）；可管理帳號列表、開發者旗標、重置密碼。
+另：策展可檢視 `LlmUsage`、變更執行期 LLM ApiKey／Model／BaseUrl（SQLite 覆寫）；可管理帳號列表、開發者旗標、重置密碼；帳號列表顯示登入次數／最後登入時間。
 
 ## Acceptance criteria
 
-- [ ] 允許清單內 Google 帳號可登入策展站並看到維護介面。（**手動煙測待做**；Email 路徑已接）
+- [ ] 允許清單內 Google 帳號可登入策展站並看到維護介面。（**手動煙測待做**；Email 路徑已接；Railway 上 Email 登入已煙測）
 - [x] 非允許清單帳號無法進入維護面（即使 Google 登入成功）。（UI 閘門單測綠；API 仍 403；DB `IsDeveloper` 與名單聯集後可進）
-- [ ] 策展者可於 UI 新增、編輯、啟用／下架已驗證空耳，並列表／搜尋。（**UI 已實作；手動煙測待做**）
+- [ ] 策展者可於 UI 新增、編輯、啟用／下架已驗證空耳，並列表／搜尋。（**UI 已實作；側欄已隱藏入口，直連 URL 仍可用；手動煙測待做**）
 - [x] UI 寫入走共用 API；不另起第二業務後端。
-- [x] 獨立於 Web 學習端部署／專案邊界清楚（`Soraeru.Curator`；ADR-0012）。
+- [x] 獨立於 Web 學習端部署／專案邊界清楚（`Soraeru.Curator`；ADR-0012；Railway 獨立服務）。
 - [ ] 煙測或手動腳本可示範：UI 上架一條 → 學習者分析同鍵拿到已驗證空耳（依賴 04 行為）。
 - [x] 策展者可查看遮罩金鑰與今日用量摘要；可變更 ApiKey／Model／BaseUrl（SQLite，立刻生效）。
 - [x] 文字分析寫入 `LlmUsage`（`text_analysis`）；非允許清單無法呼叫 LLM 管理 API。
 - [x] 策展者可於「帳號」頁列出使用者、切換 `IsDeveloper`（連動額度）、重置密碼（≥8）；登入 `SyncDeveloperFlag`＝名單 ∪ DB。
+- [x] 帳號列表顯示登入次數與最後登入時間（登入成功路徑寫入；migration `AddUserLoginStats`）。
 
-## Notes（2026-09-04）
+## Notes（2026-09-10）
 
-- 專案：`src/Soraeru.Curator`（Blazor Server，`http://localhost:5180`）
-- 測試：Application.Tests 62 綠（含 CuratorUserAdmin／Auth developer sync）；Curator.Tests 6 綠
+- 專案：`src/Soraeru.Curator`（Blazor Server；本機 `http://localhost:5180`）
+- Railway：Curator 獨立部署；修復過 DataProtection Volume 權限、`blazor.web.js` 靜態資源、反向代理、LLM 用量 SQLite DateTimeOffset 彙總
+- 側欄：維護面預設顯示 LLM 設定／用量、帳號、登出；「已驗證空耳」「新增條目」已自 NavMenu 移除（頁面仍可直連）
+- 登入落地：成功後導向 `/accounts`
+- 測試：Application.Tests 含 CuratorUserAdmin／Auth developer sync／登入計次；Curator.Tests 閘門單測
 - 本機說明：[`docs/dev-setup-curator.md`](../dev-setup-curator.md)
 - ADR-0013：[`docs/adr/0013-llm-runtime-settings-sqlite.md`](../adr/0013-llm-runtime-settings-sqlite.md)
 - API：`GET/PUT /api/v1/curator/llm/settings`、`GET /api/v1/curator/llm/usage`
 - API：`GET /api/v1/curator/users`、`PATCH .../developer`、`POST .../reset-password`
-- 策展頁：`/llm-settings`、`/llm-usage`、`/accounts`
-- 下一步：本機煙測後勾剩餘 AC／改 done
+- 策展頁：`/llm-settings`、`/llm-usage`、`/accounts`（`/verified*` 仍存在、選單已藏）
+- 下一步：Google 登入煙測；金標 CRUD 端到端 demo 後勾剩餘 AC／改 done

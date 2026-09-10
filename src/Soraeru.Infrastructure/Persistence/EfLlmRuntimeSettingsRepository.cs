@@ -89,17 +89,20 @@ public sealed class EfLlmUsageRepository : ILlmUsageRepository
         string? featureType,
         CancellationToken cancellationToken = default)
     {
-        var q = _db.LlmUsages.AsNoTracking().Where(x => x.CreatedAt >= sinceUtc);
+        var q = _db.LlmUsages.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(featureType))
         {
             q = q.Where(x => x.FeatureType == featureType);
         }
 
-        var count = await q.CountAsync(cancellationToken);
-        var prompt = await q.SumAsync(x => (long)(x.PromptTokens ?? 0), cancellationToken);
-        var completion = await q.SumAsync(x => (long)(x.CompletionTokens ?? 0), cancellationToken);
-        var cost = await q.SumAsync(x => x.EstimatedCostNtd, cancellationToken);
-        return (count, prompt, completion, cost);
+        // EF Core SQLite cannot translate DateTimeOffset range comparisons; summarize in memory.
+        var rows = await q.ToListAsync(cancellationToken);
+        var filtered = rows.Where(x => x.CreatedAt >= sinceUtc).ToList();
+        return (
+            filtered.Count,
+            filtered.Sum(x => (long)(x.PromptTokens ?? 0)),
+            filtered.Sum(x => (long)(x.CompletionTokens ?? 0)),
+            filtered.Sum(x => x.EstimatedCostNtd));
     }
 
     private static LlmUsageRecord ToRecord(LlmUsageEntity x) =>

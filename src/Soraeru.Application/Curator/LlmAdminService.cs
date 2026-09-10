@@ -164,7 +164,7 @@ public sealed class LlmAdminService : ILlmAdminService
 
         take = Math.Clamp(take <= 0 ? 50 : take, 1, 200);
         var items = await _usage.ListRecentAsync(take, featureType, cancellationToken);
-        var since = DateTimeOffset.UtcNow.Date;
+        var since = new DateTimeOffset(DateTime.UtcNow.Date, TimeSpan.Zero);
         var summary = await _usage.SummarizeSinceAsync(since, featureType, cancellationToken);
 
         return ServiceResult<LlmUsagePage>.Success(

@@ -1,5 +1,6 @@
 ﻿@inject CuratorSessionState SessionState
 @inject NavigationManager Nav
+@using Soraeru.Curator.Diagnostics
 @implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -51,9 +52,30 @@
     {
         SessionState.Changed += OnSessionChanged;
         await SessionState.EnsureHydratedAsync();
+        // #region agent log
+        AgentDebugLog.Write("C", "NavMenu.OnInitializedAsync", "nav-after-hydrate", new
+        {
+            canEnter = SessionState.CanEnterMaintenance,
+            sessionNull = SessionState.Session is null,
+            isDeveloper = SessionState.Session?.IsDeveloper,
+            hasToken = !string.IsNullOrWhiteSpace(SessionState.Session?.AccessToken),
+            uri = Nav.Uri
+        });
+        // #endregion
     }
 
-    private void OnSessionChanged() => _ = InvokeAsync(StateHasChanged);
+    private void OnSessionChanged()
+    {
+        // #region agent log
+        AgentDebugLog.Write("C", "NavMenu.OnSessionChanged", "nav-session-changed", new
+        {
+            canEnter = SessionState.CanEnterMaintenance,
+            sessionNull = SessionState.Session is null,
+            uri = Nav.Uri
+        });
+        // #endregion
+        _ = InvokeAsync(StateHasChanged);
+    }
 
     private async Task SignOutAsync()
     {

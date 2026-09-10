@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Soraeru.Curator.Access;
+using Soraeru.Curator.Diagnostics;
 
 namespace Soraeru.Curator.Services;
 
@@ -26,22 +27,47 @@ public sealed class CuratorSessionState
     {
         if (_hydrated)
         {
+            // #region agent log
+            AgentDebugLog.Write("B", "CuratorSessionState.EnsureHydratedAsync", "skip-already-hydrated", new
+            {
+                sessionNull = Session is null,
+                isDeveloper = Session?.IsDeveloper,
+                hasToken = !string.IsNullOrWhiteSpace(Session?.AccessToken),
+                canEnter = CanEnterMaintenance
+            });
+            // #endregion
             return;
         }
 
         _hydrated = true;
+        var storageSuccess = false;
+        string? catchKind = null;
         try
         {
             var result = await _storage.GetAsync<CuratorSession>(StorageKey);
+            storageSuccess = result.Success;
             if (result.Success)
             {
                 Session = result.Value;
             }
         }
-        catch
+        catch (Exception ex)
         {
             // First render / JS unavailable — ignore.
+            catchKind = ex.GetType().Name;
         }
+
+        // #region agent log
+        AgentDebugLog.Write("A", "CuratorSessionState.EnsureHydratedAsync", "hydrate-complete", new
+        {
+            storageSuccess,
+            catchKind,
+            sessionNull = Session is null,
+            isDeveloper = Session?.IsDeveloper,
+            hasToken = !string.IsNullOrWhiteSpace(Session?.AccessToken),
+            canEnter = CanEnterMaintenance
+        });
+        // #endregion
 
         NotifyChanged();
     }
@@ -51,6 +77,14 @@ public sealed class CuratorSessionState
         Session = session;
         _hydrated = true;
         await _storage.SetAsync(StorageKey, session);
+        // #region agent log
+        AgentDebugLog.Write("A", "CuratorSessionState.SetAsync", "session-set", new
+        {
+            isDeveloper = session.IsDeveloper,
+            hasToken = !string.IsNullOrWhiteSpace(session.AccessToken),
+            canEnter = CanEnterMaintenance
+        });
+        // #endregion
         NotifyChanged();
     }
 
@@ -59,6 +93,12 @@ public sealed class CuratorSessionState
         Session = null;
         _hydrated = true;
         await _storage.DeleteAsync(StorageKey);
+        // #region agent log
+        AgentDebugLog.Write("E", "CuratorSessionState.ClearAsync", "session-cleared", new
+        {
+            canEnter = CanEnterMaintenance
+        });
+        // #endregion
         NotifyChanged();
     }
 

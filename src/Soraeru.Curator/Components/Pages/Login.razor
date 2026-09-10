@@ -1,5 +1,6 @@
 @page "/login"
 @using Soraeru.Curator.Api
+@using Soraeru.Curator.Diagnostics
 @inject ICuratorApiClient Api
 @inject CuratorSessionState SessionState
 @inject NavigationManager Nav
@@ -8,6 +9,15 @@
 
 <h1>策展登入</h1>
 <p class="text-muted">僅允許清單內帳號可進入維護面。登入後呼叫共用 API（不另起後端）。</p>
+
+@* #region agent log *@
+<p class="small text-warning" style="font-family:monospace;">
+    debug50837b canEnter=@SessionState.CanEnterMaintenance
+    sessionNull=@(SessionState.Session is null)
+    isDev=@(SessionState.Session?.IsDeveloper)
+    hasToken=@(!string.IsNullOrWhiteSpace(SessionState.Session?.AccessToken))
+</p>
+@* #endregion *@
 
 @if (!string.IsNullOrWhiteSpace(_error))
 {
@@ -38,6 +48,16 @@
     protected override async Task OnInitializedAsync()
     {
         await SessionState.EnsureHydratedAsync();
+        // #region agent log
+        AgentDebugLog.Write("A", "Login.OnInitializedAsync", "login-after-hydrate", new
+        {
+            canEnter = SessionState.CanEnterMaintenance,
+            sessionNull = SessionState.Session is null,
+            isDeveloper = SessionState.Session?.IsDeveloper,
+            hasToken = !string.IsNullOrWhiteSpace(SessionState.Session?.AccessToken),
+            willRedirectAccounts = SessionState.CanEnterMaintenance
+        });
+        // #endregion
         if (SessionState.CanEnterMaintenance)
         {
             Nav.NavigateTo("/accounts");

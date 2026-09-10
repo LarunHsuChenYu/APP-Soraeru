@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject CuratorSessionState SessionState
+@inject NavigationManager Nav
+@using Soraeru.Curator.Diagnostics
 @implements IDisposable
 
 <div class="page">
@@ -33,6 +35,15 @@
     {
         SessionState.Changed += OnSessionChanged;
         await SessionState.EnsureHydratedAsync();
+        // #region agent log
+        AgentDebugLog.Write("D", "MainLayout.OnInitializedAsync", "layout-after-hydrate", new
+        {
+            canEnter = SessionState.CanEnterMaintenance,
+            sessionNull = SessionState.Session is null,
+            showEmail = SessionState.Session is not null,
+            uri = Nav.Uri
+        });
+        // #endregion
     }
 
     private void OnSessionChanged() => _ = InvokeAsync(StateHasChanged);

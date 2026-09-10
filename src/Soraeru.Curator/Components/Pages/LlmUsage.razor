@@ -105,33 +105,6 @@ else
         try
         {
             var result = await Api.GetLlmUsageAsync(SessionState.Session!.AccessToken, 50);
-            // #region agent log
-            try
-            {
-                var payload = System.Text.Json.JsonSerializer.Serialize(new
-                {
-                    sessionId = "1a7969",
-                    runId = "post-fix",
-                    hypothesisId = "H-usage-sqlite",
-                    location = "LlmUsage.razor:LoadAsync",
-                    message = "Curator LLM usage load result",
-                    data = new
-                    {
-                        ok = result.IsSuccess,
-                        status = result.StatusCode,
-                        code = result.ErrorCode,
-                        error = result.ErrorMessage,
-                        itemCount = result.Value?.Items.Count
-                    },
-                    timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                });
-                Console.WriteLine($"AGENT_DEBUG {payload}");
-                await File.AppendAllTextAsync(
-                    Path.Combine(Path.GetTempPath(), "debug-1a7969.log"),
-                    payload + Environment.NewLine);
-            }
-            catch { /* ignore debug I/O */ }
-            // #endregion
             if (!result.IsSuccess || result.Value is null)
             {
                 _error = result.ErrorMessage ?? "載入失敗。";

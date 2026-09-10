@@ -5,8 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using Soraeru.Api.Endpoints;
 using Soraeru.Api.Hosting;
 using Soraeru.Application;
+using Microsoft.Extensions.Options;
+using Soraeru.Application.Abstractions.Persistence;
 using Soraeru.Infrastructure;
 using Soraeru.Infrastructure.Auth;
+using Soraeru.Infrastructure.Llm;
 using Soraeru.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -72,6 +75,13 @@ if (!string.Equals(provider, "InMemory", StringComparison.OrdinalIgnoreCase))
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<SoraeruDbContext>();
     db.Database.Migrate();
+
+    // One-time: copy Railway/appsettings Llm__* into SQLite if DB incomplete, then request path is DB-only.
+    var runtime = scope.ServiceProvider.GetRequiredService<ILlmRuntimeSettingsRepository>();
+    var llmOptions = scope.ServiceProvider.GetRequiredService<IOptions<LlmOptions>>().Value;
+    var bootstrapLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+        .CreateLogger("LlmRuntimeSettingsBootstrap");
+    await LlmRuntimeSettingsBootstrap.EnsureSeededFromConfigAsync(runtime, llmOptions, bootstrapLogger);
 }
 
 if (corsOrigins.Length > 0)

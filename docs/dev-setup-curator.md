@@ -58,7 +58,7 @@ dotnet run --project src/Soraeru.Curator --launch-profile http
 
 **誰用／怎麼登入：** 僅 `DeveloperAccounts` 或 DB `IsDeveloper` 的策展者。目前 UI 為 **Email／密碼**（打共用 API 登入）；Google 登入尚未接上正式頁。帳密必須存在於**目標 API 的那份 DB**（本機 SQLite ≠ Railway Volume）。
 
-**LLM key：** 放在 **API**（Railway Variables 的 `Llm__ApiKey`，或策展「LLM 設定」寫入 SQLite 覆寫，見 ADR-0013）。Curator 容器**不**持有 LLM 金鑰。
+**LLM key：** 只存在 **API 的 SQLite**（策展「LLM 設定」維護，ADR-0013）。請求時**不**讀 Railway `Llm__*`。Curator 容器**不**持有 LLM 金鑰。
 
 **本機 vs 正式：** 本機策展預設打 `localhost:5080`；正式策展必須設 `Curator__ApiBaseUrl=https://airy-enjoyment-production-de0f.up.railway.app`（無尾斜線亦可）。改正式庫＝改真實使用者／金標／用量，部署前先確認目標。
 

@@ -37,9 +37,9 @@
 | `Jwt__SigningKey` | ≥32 字；**與本機 User Secrets 不同**的正式密鑰 |
 | `GoogleAuth__ClientIds__0` | 現有 Web Client ID |
 | `GoogleAuth__ClientIds__1` | 現有 Android Client ID（若有） |
-| `Llm__ApiKey` | Gemini／相容端點金鑰 |
-| `Llm__Model` | 可選覆寫 |
-| `Llm__BaseUrl` | 可選覆寫 |
+| `Llm__ApiKey` | **僅首次 seed 用**（可選）。API 啟動時若 SQLite 尚無金鑰，會一次性寫入 DB；之後請用策展「LLM 設定」維護，並可自此變數刪除 |
+| `Llm__Model` | 同上（僅 seed） |
+| `Llm__BaseUrl` | 同上（僅 seed） |
 | `Cors__AllowedOrigins__0` | **先不要設**。Web 上線後再填 `https://<web>.up.railway.app` |
 
 `Jwt:Issuer`／`Jwt:Audience` 沿用 `appsettings.json`（`Soraeru`／`Soraeru.App`）即可。

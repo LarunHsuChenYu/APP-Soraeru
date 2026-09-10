@@ -4,6 +4,10 @@ using Soraeru.Application.Abstractions.Persistence;
 
 namespace Soraeru.Infrastructure.Llm;
 
+/// <summary>
+/// Resolves ApiKey / Model / BaseUrl from SQLite only (ADR-0013 amended).
+/// Timeout still comes from LlmOptions (appsettings / env).
+/// </summary>
 public sealed class LlmSettingsResolver : ILlmSettingsResolver
 {
     private readonly IOptions<LlmOptions> _options;
@@ -22,19 +26,56 @@ public sealed class LlmSettingsResolver : ILlmSettingsResolver
         var cfg = _options.Value;
         var db = await _runtime.GetAsync(cancellationToken);
 
-        var apiKeyFromDb = !string.IsNullOrWhiteSpace(db?.ApiKey);
-        var modelFromDb = !string.IsNullOrWhiteSpace(db?.Model);
-        var baseUrlFromDb = !string.IsNullOrWhiteSpace(db?.BaseUrl);
+        var apiKey = db?.ApiKey?.Trim() ?? "";
+        var model = db?.Model?.Trim() ?? "";
+        var baseUrl = (db?.BaseUrl ?? "").Trim().TrimEnd('/');
+
+        var apiKeyFromDb = !string.IsNullOrWhiteSpace(apiKey);
+        var modelFromDb = !string.IsNullOrWhiteSpace(model);
+        var baseUrlFromDb = !string.IsNullOrWhiteSpace(baseUrl);
+
+        // #region agent log
+        try
+        {
+            var line = System.Text.Json.JsonSerializer.Serialize(new
+            {
+                sessionId = "7ea34e",
+                hypothesisId = "H-DB-ONLY",
+                location = "LlmSettingsResolver.cs:ResolveAsync",
+                message = "Resolved LLM settings from SQLite only",
+                data = new
+                {
+                    apiKeyFromDb,
+                    modelFromDb,
+                    baseUrlFromDb,
+                    model,
+                    baseUrl,
+                    apiKeyMasked = apiKey.Length <= 8
+                        ? "(short-or-empty)"
+                        : $"{apiKey[..4]}…{apiKey[^4..]}",
+                    readsEnvForKeyModelBaseUrl = false
+                },
+                timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                runId = "post-fix"
+            }) + Environment.NewLine;
+            File.AppendAllText(@"d:\VS\Soraeru\debug-7ea34e.log", line);
+        }
+        catch
+        {
+            // ignore
+        }
+        // #endregion
 
         return new LlmEffectiveSettings(
-            ApiKey: apiKeyFromDb ? db!.ApiKey!.Trim() : (cfg.ApiKey ?? ""),
-            Model: modelFromDb ? db!.Model!.Trim() : (cfg.Model ?? ""),
-            BaseUrl: (baseUrlFromDb ? db!.BaseUrl! : (cfg.BaseUrl ?? "")).Trim().TrimEnd('/'),
+            ApiKey: apiKey,
+            Model: model,
+            BaseUrl: baseUrl,
             TimeoutSeconds: Math.Clamp(cfg.TimeoutSeconds, 10, 180),
             ApiKeyFromDatabase: apiKeyFromDb,
             ModelFromDatabase: modelFromDb,
             BaseUrlFromDatabase: baseUrlFromDb,
-            ConfigModel: cfg.Model ?? "",
-            ConfigBaseUrl: (cfg.BaseUrl ?? "").Trim().TrimEnd('/'));
+            // Legacy fields: no longer mirror Railway env — surface DB values for Curator.
+            ConfigModel: model,
+            ConfigBaseUrl: baseUrl);
     }
 }

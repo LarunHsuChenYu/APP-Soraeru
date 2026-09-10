@@ -116,13 +116,16 @@ public sealed class LlmAdminService : ILlmAdminService
         var user = await _users.FindByIdAsync(command.ActorUserId, cancellationToken);
         var existing = await _runtime.GetAsync(cancellationToken);
         var apiKey = existing?.ApiKey;
+        var keyBranch = "unchanged";
         if (command.ClearApiKey)
         {
             apiKey = null;
+            keyBranch = "cleared";
         }
         else if (!string.IsNullOrWhiteSpace(command.ApiKey))
         {
             apiKey = command.ApiKey.Trim();
+            keyBranch = "set_override";
         }
 
         var model = existing?.Model;
@@ -137,6 +140,25 @@ public sealed class LlmAdminService : ILlmAdminService
             baseUrl = string.IsNullOrWhiteSpace(command.BaseUrl) ? null : command.BaseUrl.Trim().TrimEnd('/');
         }
 
+        // #region agent log
+        AgentDebugLog.Write(
+            "H-A,H-B,H-C",
+            "LlmAdminService.cs:UpdateSettingsAsync:pre-upsert",
+            "LLM settings update branch",
+            new
+            {
+                clearApiKey = command.ClearApiKey,
+                hasIncomingApiKey = !string.IsNullOrWhiteSpace(command.ApiKey),
+                incomingApiKeyLength = string.IsNullOrWhiteSpace(command.ApiKey) ? 0 : command.ApiKey.Trim().Length,
+                hadDbApiKeyBefore = !string.IsNullOrWhiteSpace(existing?.ApiKey),
+                keyBranch,
+                willPersistDbApiKey = !string.IsNullOrWhiteSpace(apiKey),
+                model = model,
+                baseUrl = baseUrl,
+                writesRailwayEnv = false
+            });
+        // #endregion
+
         await _runtime.UpsertAsync(
             new LlmRuntimeSettingsRecord(
                 apiKey,
@@ -147,7 +169,28 @@ public sealed class LlmAdminService : ILlmAdminService
             cancellationToken);
 
         var effective = await _resolver.ResolveAsync(cancellationToken);
-        return ServiceResult<LlmSettingsView>.Success(ToView(effective));
+        var view = ToView(effective);
+
+        // #region agent log
+        AgentDebugLog.Write(
+            "H-A,H-D,H-E",
+            "LlmAdminService.cs:UpdateSettingsAsync:post-resolve",
+            "LLM effective settings after save",
+            new
+            {
+                apiKeyMasked = view.ApiKeyMasked,
+                apiKeyFromDatabase = view.ApiKeyFromDatabase,
+                hasApiKeyConfigured = view.HasApiKeyConfigured,
+                model = view.Model,
+                modelFromDatabase = view.ModelFromDatabase,
+                baseUrl = view.BaseUrl,
+                baseUrlFromDatabase = view.BaseUrlFromDatabase,
+                configModel = view.ConfigModel,
+                configBaseUrl = view.ConfigBaseUrl
+            });
+        // #endregion
+
+        return ServiceResult<LlmSettingsView>.Success(view);
     }
 
     public async Task<ServiceResult<LlmUsagePage>> ListUsageAsync(

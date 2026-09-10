@@ -370,17 +370,17 @@ public sealed class OpenAiCompatibleWordAnalysisAgent : IWordAnalysisAgent
             || options.ApiKey.Contains("REPLACE", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
-                "LLM API Key 尚未設定。請用 User Secrets／策展後台設定 Llm:ApiKey（見 docs/dev-setup-llm.md）。");
+                "LLM API Key 尚未寫入 SQLite。請用策展「LLM 設定」儲存 ApiKey（見 docs/dev-setup-llm.md）。");
         }
 
         if (string.IsNullOrWhiteSpace(options.Model))
         {
-            throw new InvalidOperationException("Llm:Model 尚未設定。");
+            throw new InvalidOperationException("LLM Model 尚未寫入 SQLite。請用策展「LLM 設定」儲存。");
         }
 
         if (string.IsNullOrWhiteSpace(options.BaseUrl))
         {
-            throw new InvalidOperationException("Llm:BaseUrl 尚未設定。");
+            throw new InvalidOperationException("LLM BaseUrl 尚未寫入 SQLite。請用策展「LLM 設定」儲存。");
         }
     }
 

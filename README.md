@@ -1,4 +1,4 @@
-# Soraeru（空耳學單字）
+# Soraeru（空耳聯合國）
 
 三層式 .NET 方案骨架。規格以 `docs/` 規劃書為準。
 
@@ -57,10 +57,11 @@ API 預設聽在 `http://localhost:5080`。驗證請開 **`http://localhost:5080
 | POST | `/api/v1/word/analyze` | 需 Bearer；單一 LLM → JSON（詞義／讀音／2～3 空耳） |
 
 - Prompt 定稿（多語優先）：[`docs/prompts/word-analysis.md`](docs/prompts/word-analysis.md)
-- LLM Key 設定與 curl：[`docs/dev-setup-llm.md`](docs/dev-setup-llm.md)
+- LLM 設定（**SQLite 為準**；本機可選 user-secrets 僅供首次 seed）：[`docs/dev-setup-llm.md`](docs/dev-setup-llm.md)
 
 ```powershell
 cd src\Soraeru.Api
+# 可選：僅啟動時 seed 進 SQLite；之後請用策展 /llm-settings
 dotnet user-secrets set "Llm:ApiKey" "YOUR_KEY"
 ```
 

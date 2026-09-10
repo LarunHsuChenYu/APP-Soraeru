@@ -134,7 +134,7 @@ var staticAssetManifests = Directory
 AgentDebugLog(new
 {
     sessionId = "1a7969",
-    runId = "pre-fix",
+    runId = "post-fix",
     hypothesisId = "H1,H2,H4",
     location = "Program.cs:startup-probe",
     message = "Curator static asset runtime state",
@@ -164,7 +164,7 @@ var publishManifestText = File.Exists(publishManifestPath)
 AgentDebugLog(new
 {
     sessionId = "1a7969",
-    runId = "pre-fix-2",
+    runId = "post-fix",
     hypothesisId = "H5,H6",
     location = "Program.cs:publish-manifest-probe",
     message = "Curator publish manifest content state",

@@ -5,6 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <!--
+      .NET 10 ships blazor.web.js via Microsoft.AspNetCore.App.Internal.Assets.
+      Docker layered restore (csproj-only) does not see .razor files, so the SDK
+      may skip that pack unless this is forced true.
+    -->
+    <RequiresAspNetWebAssets>true</RequiresAspNetWebAssets>
     <UserSecretsId>soraeru-curator-dev-2026-09</UserSecretsId>
     <LaunchProfile>http</LaunchProfile>
   </PropertyGroup>

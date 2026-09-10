@@ -6,8 +6,11 @@ RUN dotnet restore Soraeru.Curator.csproj
 
 COPY . ./
 # region agent log
+# Do not use --no-restore here: .NET 10 needs publish-time restore of
+# Microsoft.AspNetCore.App.Internal.Assets for wwwroot/_framework/blazor.web.js.
 RUN dotnet --version \
-    && dotnet publish Soraeru.Curator.csproj -c Release -o /app/publish --no-restore \
+    && dotnet publish Soraeru.Curator.csproj -c Release -o /app/publish \
+    && find /app/publish -iname '*blazor*' -print \
     && test -f /app/publish/wwwroot/_framework/blazor.web.js \
     && grep -q '"Route":"_framework/blazor.web.js"' \
         /app/publish/Soraeru.Curator.staticwebassets.endpoints.json

@@ -54,6 +54,7 @@ public static class CuratorLlmAdminEndpoints
             string? featureType,
             ILlmAdminService admin,
             ClaimsPrincipal user,
+            ILoggerFactory loggerFactory,
             CancellationToken ct) =>
         {
             var id = ResolveUserId(user);
@@ -62,18 +63,63 @@ public static class CuratorLlmAdminEndpoints
                 return Results.Unauthorized();
             }
 
-            var result = await admin.ListUsageAsync(id.Value, take ?? 50, featureType, ct);
-            return ToHttp(result, page => Results.Ok(new
+            try
             {
-                items = page.Items.Select(ToUsageItem).ToList(),
-                today = new
+                var result = await admin.ListUsageAsync(id.Value, take ?? 50, featureType, ct);
+                // #region agent log
+                Console.WriteLine(
+                    $"AGENT_DEBUG {System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        sessionId = "1a7969",
+                        runId = "post-fix",
+                        hypothesisId = "H-usage-sqlite",
+                        location = "CuratorLlmAdminEndpoints:usage",
+                        message = "API LLM usage result",
+                        data = new
+                        {
+                            ok = result.IsSuccess,
+                            code = result.ErrorCode,
+                            itemCount = result.Value?.Items.Count
+                        },
+                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                    })}");
+                // #endregion
+                return ToHttp(result, page => Results.Ok(new
                 {
-                    count = page.Today.Count,
-                    promptTokens = page.Today.PromptTokens,
-                    completionTokens = page.Today.CompletionTokens,
-                    estimatedCostNtd = page.Today.EstimatedCostNtd
-                }
-            }));
+                    items = page.Items.Select(ToUsageItem).ToList(),
+                    today = new
+                    {
+                        count = page.Today.Count,
+                        promptTokens = page.Today.PromptTokens,
+                        completionTokens = page.Today.CompletionTokens,
+                        estimatedCostNtd = page.Today.EstimatedCostNtd
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                // #region agent log
+                Console.WriteLine(
+                    $"AGENT_DEBUG {System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        sessionId = "1a7969",
+                        runId = "post-fix",
+                        hypothesisId = "H-usage-sqlite",
+                        location = "CuratorLlmAdminEndpoints:usage-catch",
+                        message = "API LLM usage exception",
+                        data = new
+                        {
+                            exceptionType = ex.GetType().FullName,
+                            exceptionMessage = ex.Message
+                        },
+                        timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                    })}");
+                // #endregion
+                loggerFactory.CreateLogger("CuratorLlmAdmin").LogError(ex, "LLM usage failed");
+                return Results.Json(
+                    new ErrorResponse("USAGE_QUERY_FAILED", $"{ex.GetType().Name}: {ex.Message}"),
+                    statusCode: StatusCodes.Status500InternalServerError);
+            }
         });
 
         return group;

@@ -78,10 +78,13 @@ public sealed class EfLlmUsageRepository : ILlmUsageRepository
             q = q.Where(x => x.FeatureType == featureType);
         }
 
-        var rows = await q.OrderByDescending(x => x.CreatedAt)
+        // EF Core SQLite cannot ORDER BY DateTimeOffset; order/take on the client.
+        var rows = await q.ToListAsync(cancellationToken);
+        return rows
+            .OrderByDescending(x => x.CreatedAt)
             .Take(take)
-            .ToListAsync(cancellationToken);
-        return rows.Select(ToRecord).ToList();
+            .Select(ToRecord)
+            .ToList();
     }
 
     public async Task<(int Count, long PromptTokens, long CompletionTokens, decimal EstimatedCostNtd)> SummarizeSinceAsync(

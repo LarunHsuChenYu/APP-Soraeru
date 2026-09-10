@@ -105,6 +105,7 @@ public sealed class AuthService : IAuthService
         }
 
         user = await SyncDeveloperFlagAsync(user, cancellationToken);
+        user = await RecordSuccessfulLoginAsync(user, cancellationToken);
         return ServiceResult<AuthSession>.Success(ToSession(user));
     }
 
@@ -138,6 +139,7 @@ public sealed class AuthService : IAuthService
         if (bySubject is not null)
         {
             bySubject = await SyncDeveloperFlagAsync(bySubject, cancellationToken);
+            bySubject = await RecordSuccessfulLoginAsync(bySubject, cancellationToken);
             return ServiceResult<AuthSession>.Success(ToSession(bySubject));
         }
 
@@ -163,6 +165,7 @@ public sealed class AuthService : IAuthService
             };
             await _users.UpdateAsync(bound, cancellationToken);
             bound = await SyncDeveloperFlagAsync(bound, cancellationToken);
+            bound = await RecordSuccessfulLoginAsync(bound, cancellationToken);
             return ServiceResult<AuthSession>.Success(ToSession(bound));
         }
 
@@ -182,10 +185,13 @@ public sealed class AuthService : IAuthService
             NotationPref: AppConstants.DefaultNotationPref,
             IsDeveloper: isDeveloper,
             OnboardingCompleted: false,
-            CreatedAtUtc: DateTimeOffset.UtcNow);
+            CreatedAtUtc: DateTimeOffset.UtcNow,
+            LoginCount: 0,
+            LastLoginAtUtc: null);
 
         await _users.AddAsync(created, cancellationToken);
         created = await SyncDeveloperFlagAsync(created, cancellationToken);
+        created = await RecordSuccessfulLoginAsync(created, cancellationToken);
         return ServiceResult<AuthSession>.Success(ToSession(created));
     }
 
@@ -257,6 +263,17 @@ public sealed class AuthService : IAuthService
         {
             IsDeveloper = shouldBeDeveloper,
             DailyQuota = shouldBeDeveloper ? AppConstants.UnlimitedDailyQuota : AppConstants.FreeDailyQuota
+        };
+        await _users.UpdateAsync(updated, cancellationToken);
+        return updated;
+    }
+
+    private async Task<UserRecord> RecordSuccessfulLoginAsync(UserRecord user, CancellationToken cancellationToken)
+    {
+        var updated = user with
+        {
+            LoginCount = user.LoginCount + 1,
+            LastLoginAtUtc = DateTimeOffset.UtcNow
         };
         await _users.UpdateAsync(updated, cancellationToken);
         return updated;

@@ -72,7 +72,9 @@ public static class CuratorUserAdminEndpoints
         dailyQuota = dto.DailyQuota,
         onboardingCompleted = dto.OnboardingCompleted,
         hasPassword = dto.HasPassword,
-        createdAtUtc = dto.CreatedAtUtc
+        createdAtUtc = dto.CreatedAtUtc,
+        loginCount = dto.LoginCount,
+        lastLoginAtUtc = dto.LastLoginAtUtc
     };
 
     private static IResult ToHttp<T>(

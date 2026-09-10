@@ -25,4 +25,8 @@ public sealed class UserEntity
     public bool OnboardingCompleted { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    public int LoginCount { get; set; }
+
+    public DateTimeOffset? LastLoginAtUtc { get; set; }
 }

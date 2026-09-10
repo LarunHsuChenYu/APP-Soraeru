@@ -472,4 +472,6 @@ public sealed record CuratorUserDto(
     int DailyQuota,
     bool OnboardingCompleted,
     bool HasPassword,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    int LoginCount,
+    DateTimeOffset? LastLoginAtUtc);

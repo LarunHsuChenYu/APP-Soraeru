@@ -44,6 +44,8 @@ else
                 <th>每日額度</th>
                 <th>導覽完成</th>
                 <th>密碼</th>
+                <th>登入次數</th>
+                <th>最後登入時間</th>
                 <th>建立時間</th>
                 <th></th>
             </tr>
@@ -58,6 +60,8 @@ else
                     <td>@(FormatQuota(item.DailyQuota))</td>
                     <td>@(item.OnboardingCompleted ? "是" : "否")</td>
                     <td>@(item.HasPassword ? "有" : "僅 Google")</td>
+                    <td>@item.LoginCount</td>
+                    <td>@(FormatLastLogin(item.LastLoginAtUtc))</td>
                     <td>@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</td>
                     <td class="text-nowrap">
                         <button type="button" class="btn btn-link btn-sm p-0"
@@ -219,4 +223,9 @@ else
 
     private static string FormatQuota(int quota) =>
         quota >= int.MaxValue / 2 ? "無限" : quota.ToString();
+
+    private static string FormatLastLogin(DateTimeOffset? lastLoginAtUtc) =>
+        lastLoginAtUtc is null
+            ? "—"
+            : lastLoginAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
 }

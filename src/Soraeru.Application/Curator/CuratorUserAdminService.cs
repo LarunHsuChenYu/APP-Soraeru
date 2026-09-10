@@ -31,7 +31,9 @@ public sealed record CuratorUserListItem(
     int DailyQuota,
     bool OnboardingCompleted,
     bool HasPassword,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    int LoginCount,
+    DateTimeOffset? LastLoginAtUtc);
 
 public sealed class CuratorUserAdminService : ICuratorUserAdminService
 {
@@ -141,7 +143,9 @@ public sealed class CuratorUserAdminService : ICuratorUserAdminService
             user.DailyQuota,
             user.OnboardingCompleted,
             !string.IsNullOrEmpty(user.PasswordHash),
-            user.CreatedAtUtc);
+            user.CreatedAtUtc,
+            user.LoginCount,
+            user.LastLoginAtUtc);
 
     private async Task<(string Code, string Message)?> EnsureCuratorAsync(
         Guid actorUserId,

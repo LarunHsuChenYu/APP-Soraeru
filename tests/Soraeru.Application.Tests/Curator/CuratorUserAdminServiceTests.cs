@@ -46,11 +46,14 @@ public sealed class CuratorUserAdminServiceTests
     public async Task ListUsers_returns_accounts_without_password_hash()
     {
         var created = DateTimeOffset.Parse("2026-01-15T10:00:00Z");
+        var lastLogin = DateTimeOffset.Parse("2026-03-01T08:30:00Z");
         _users.ListAsync(Arg.Any<CancellationToken>()).Returns(
         [
             new UserRecord(
                 TargetId, "target@example.com", "SECRET_HASH", null, "T", "Free",
-                AppConstants.FreeDailyQuota, "zhuyin", false, true, created)
+                AppConstants.FreeDailyQuota, "zhuyin", false, true, created,
+                LoginCount: 4,
+                LastLoginAtUtc: lastLogin)
         ]);
 
         var result = await _sut.ListUsersAsync(CuratorId);
@@ -65,6 +68,8 @@ public sealed class CuratorUserAdminServiceTests
         row.OnboardingCompleted.ShouldBeTrue();
         row.CreatedAtUtc.ShouldBe(created);
         row.HasPassword.ShouldBeTrue();
+        row.LoginCount.ShouldBe(4);
+        row.LastLoginAtUtc.ShouldBe(lastLogin);
     }
 
     [Fact]

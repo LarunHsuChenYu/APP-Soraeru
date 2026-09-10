@@ -31,4 +31,6 @@ public sealed record UserRecord(
     string NotationPref,
     bool IsDeveloper,
     bool OnboardingCompleted,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    int LoginCount = 0,
+    DateTimeOffset? LastLoginAtUtc = null);

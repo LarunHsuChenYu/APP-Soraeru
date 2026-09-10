@@ -74,6 +74,8 @@ public sealed class EfUserRepository : IUserRepository
         entity.IsDeveloper = user.IsDeveloper;
         entity.OnboardingCompleted = user.OnboardingCompleted;
         entity.CreatedAt = user.CreatedAtUtc;
+        entity.LoginCount = user.LoginCount;
+        entity.LastLoginAtUtc = user.LastLoginAtUtc;
 
         await _db.SaveChangesAsync(cancellationToken);
     }
@@ -102,7 +104,9 @@ public sealed class EfUserRepository : IUserRepository
             entity.NotationPref,
             entity.IsDeveloper,
             entity.OnboardingCompleted,
-            entity.CreatedAt);
+            entity.CreatedAt,
+            entity.LoginCount,
+            entity.LastLoginAtUtc);
 
     private static UserEntity ToEntity(UserRecord user) =>
         new()
@@ -117,6 +121,8 @@ public sealed class EfUserRepository : IUserRepository
             NotationPref = user.NotationPref,
             IsDeveloper = user.IsDeveloper,
             OnboardingCompleted = user.OnboardingCompleted,
-            CreatedAt = user.CreatedAtUtc
+            CreatedAt = user.CreatedAtUtc,
+            LoginCount = user.LoginCount,
+            LastLoginAtUtc = user.LastLoginAtUtc
         };
 }

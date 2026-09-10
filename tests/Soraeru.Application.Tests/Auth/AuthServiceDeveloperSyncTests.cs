@@ -35,12 +35,22 @@ public sealed class AuthServiceDeveloperSyncTests
             AppConstants.UnlimitedDailyQuota, "zhuyin", true, true, DateTimeOffset.UtcNow);
         _users.FindByEmailAsync("promoted@example.com", Arg.Any<CancellationToken>()).Returns(user);
         _developers.IsDeveloperEmail("promoted@example.com").Returns(false);
+        UserRecord? saved = null;
+        _users.UpdateAsync(Arg.Any<UserRecord>(), Arg.Any<CancellationToken>())
+            .Returns(ci =>
+            {
+                saved = ci.ArgAt<UserRecord>(0);
+                return Task.CompletedTask;
+            });
 
         var result = await _sut.LoginWithEmailAsync(new LoginEmailCommand("promoted@example.com", "password1"));
 
         result.IsSuccess.ShouldBeTrue();
         result.Value!.IsDeveloper.ShouldBeTrue();
-        await _users.DidNotReceive().UpdateAsync(Arg.Any<UserRecord>(), Arg.Any<CancellationToken>());
+        saved.ShouldNotBeNull();
+        saved!.IsDeveloper.ShouldBeTrue();
+        saved.LoginCount.ShouldBe(1);
+        saved.LastLoginAtUtc.ShouldNotBeNull();
     }
 
     [Fact]
@@ -66,6 +76,8 @@ public sealed class AuthServiceDeveloperSyncTests
         saved.ShouldNotBeNull();
         saved!.IsDeveloper.ShouldBeTrue();
         saved.DailyQuota.ShouldBe(AppConstants.UnlimitedDailyQuota);
+        saved.LoginCount.ShouldBe(1);
+        saved.LastLoginAtUtc.ShouldNotBeNull();
     }
 
     [Fact]
@@ -73,14 +85,25 @@ public sealed class AuthServiceDeveloperSyncTests
     {
         var user = new UserRecord(
             UserId, "normal@example.com", "hash", null, "N", "Free",
-            AppConstants.FreeDailyQuota, "zhuyin", false, true, DateTimeOffset.UtcNow);
+            AppConstants.FreeDailyQuota, "zhuyin", false, true, DateTimeOffset.UtcNow,
+            LoginCount: 2);
         _users.FindByEmailAsync("normal@example.com", Arg.Any<CancellationToken>()).Returns(user);
         _developers.IsDeveloperEmail("normal@example.com").Returns(false);
+        UserRecord? saved = null;
+        _users.UpdateAsync(Arg.Any<UserRecord>(), Arg.Any<CancellationToken>())
+            .Returns(ci =>
+            {
+                saved = ci.ArgAt<UserRecord>(0);
+                return Task.CompletedTask;
+            });
 
         var result = await _sut.LoginWithEmailAsync(new LoginEmailCommand("normal@example.com", "password1"));
 
         result.IsSuccess.ShouldBeTrue();
         result.Value!.IsDeveloper.ShouldBeFalse();
-        await _users.DidNotReceive().UpdateAsync(Arg.Any<UserRecord>(), Arg.Any<CancellationToken>());
+        saved.ShouldNotBeNull();
+        saved!.IsDeveloper.ShouldBeFalse();
+        saved.LoginCount.ShouldBe(3);
+        saved.LastLoginAtUtc.ShouldNotBeNull();
     }
 }

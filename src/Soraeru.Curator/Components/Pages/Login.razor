@@ -40,7 +40,7 @@
         await SessionState.EnsureHydratedAsync();
         if (SessionState.CanEnterMaintenance)
         {
-            Nav.NavigateTo("/verified");
+            Nav.NavigateTo("/accounts");
         }
     }
 
@@ -64,7 +64,7 @@
                 return;
             }
 
-            Nav.NavigateTo("/verified");
+            Nav.NavigateTo("/accounts");
         }
         finally
         {

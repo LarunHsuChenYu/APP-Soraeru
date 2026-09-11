@@ -1,4 +1,4 @@
-﻿# 開發建置／NuGet 路徑（Windows）
+# 開發建置／NuGet 路徑（Windows）
 
 若 Visual Studio 出現 **Import Project 路徑超過 260 字元**，或錯誤路徑含 `cursor-sandbox-cache`，代表 NuGet 曾還原到 Cursor sandbox 長路徑，並寫進 `obj\*.nuget.g.targets`。這與 Android 部署「錯誤 22」**常同源**（sandbox 長路徑 → `obj` 污染／並行搶鎖 → 建置或部署失敗），處理方式同樣是短路徑還原＋清 `bin`／`obj`。
 
@@ -117,7 +117,7 @@ $env:NUGET_PACKAGES   # 目前程序
    & "C:\Program Files (x86)\Android\android-sdk\platform-tools\adb.exe" devices -l
    ```
    應看到模擬器狀態為 `device`（不是 `offline`／`unauthorized`）。
-3. 在模擬器／實機 **解除安裝** 既有 `空耳學單字`（`com.soraeru.app`），再於 VS 按 F5。
+3. 在模擬器／實機 **解除安裝** 既有 `空耳聯合國`（`com.soraeru.app`），再於 VS 按 F5。
 4. 模擬器異常時：Device Manager → **Cold Boot**（或 Wipe Data 後冷啟動），等完全開機再部署。
 5. 本機建置抽樣：
    ```powershell

@@ -19,14 +19,16 @@ public static class AuthEndpoints
         group.MapPost("/login", async (LoginRequest body, IAuthService auth, CancellationToken ct) =>
         {
             var result = await auth.LoginWithEmailAsync(
-                new LoginEmailCommand(body.Email, body.Password),
+                new LoginEmailCommand(body.Email, body.Password, ParseAuthClient(body.Client)),
                 ct);
             return ToHttp(result, session => Results.Ok(ToResponse(session)));
         });
 
         group.MapPost("/google", async (GoogleLoginRequest body, IAuthService auth, CancellationToken ct) =>
         {
-            var result = await auth.LoginWithGoogleAsync(new LoginGoogleCommand(body.IdToken), ct);
+            var result = await auth.LoginWithGoogleAsync(
+                new LoginGoogleCommand(body.IdToken, ParseAuthClient(body.Client)),
+                ct);
             return ToHttp(result, session => Results.Ok(ToResponse(session)));
         });
 
@@ -46,6 +48,14 @@ public static class AuthEndpoints
 
         return group;
     }
+
+    /// <summary>
+    /// Maps request <c>client</c> to <see cref="AuthClient"/>. Unknown / missing → App (backward compatible).
+    /// </summary>
+    internal static AuthClient ParseAuthClient(string? client) =>
+        string.Equals(client?.Trim(), "curator", StringComparison.OrdinalIgnoreCase)
+            ? AuthClient.Curator
+            : AuthClient.App;
 
     private static AuthSessionResponse ToResponse(AuthSession session) =>
         new(session.UserId, session.Email, session.AccessToken, session.OnboardingCompleted, session.IsDeveloper);
@@ -81,9 +91,9 @@ public static class AuthEndpoints
 
 public sealed record RegisterRequest(string Email, string Password, string? DisplayName = null);
 
-public sealed record LoginRequest(string Email, string Password);
+public sealed record LoginRequest(string Email, string Password, string? Client = null);
 
-public sealed record GoogleLoginRequest(string IdToken);
+public sealed record GoogleLoginRequest(string IdToken, string? Client = null);
 
 public sealed record ForgotPasswordRequest(string Email);
 

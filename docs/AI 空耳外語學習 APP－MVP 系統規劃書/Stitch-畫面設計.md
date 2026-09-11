@@ -1,9 +1,9 @@
-# Stitch 畫面設計交付書｜空耳學單字
+# Stitch 畫面設計交付書｜空耳聯合國
 
 > 文件版本：v1.0｜日期：2026-08-06  
 > 用途：**單獨交付 Google Stitch 產出高保真 UI**  
 > 對應規格：`Cursor-MVP App 規劃書.md` 第二章畫面  
-> 產品暫名：Soraeru／空耳學單字  
+> 產品暫名：Soraeru／空耳聯合國  
 > 平台：Android 手機直式（優先輸出 390×844 或同級 Mobile frame）
 
 ---
@@ -17,7 +17,7 @@
 ### 0.2 設計目標
 
 - 看起來像**小型語言學習工具 App**，不是儀表板、不是社群牆  
-- **第一視窗品牌可辨識**：「空耳學單字」要有存在感  
+- **第一視窗品牌可辨識**：「空耳聯合國」要有存在感  
 - 每頁一件事；主 CTA 明確  
 - 結果頁必須強調：**近似音僅供記憶，正式發音為準**  
 - 圖片相關頁必須強調：**僅手機端辨識，不上傳原圖**
@@ -150,7 +150,7 @@ flowchart TB
 │                            │
 │                            │
 │         [ App Icon ]       │
-│       空耳學單字            │
+│       空耳聯合國            │
 │    用發音，記住外語         │
 │                            │
 │         ◌ 載入中…          │
@@ -166,8 +166,8 @@ flowchart TB
 **Stitch Prompt**
 
 ```text
-Design an Android mobile splash screen for a Taiwanese language-learning app named「空耳學單字」(Soraeru).
-Vertical phone frame. Centered app icon, large Traditional Chinese product name「空耳學單字」, subtitle「用發音，記住外語」, subtle loading indicator at bottom of center stack.
+Design an Android mobile splash screen for a Taiwanese language-learning app named「空耳聯合國」(Soraeru).
+Vertical phone frame. Centered app icon, large Traditional Chinese product name「空耳聯合國」, subtitle「用發音，記住外語」, subtle loading indicator at bottom of center stack.
 Brand-first composition: the product name is the hero, not a tiny nav label.
 Clean learning-tool mood, light mode, custom non-purple palette, readable Chinese typography, soft atmospheric background (not flat white only). No cards, no stats, no badges overlay.
 Export as high-fidelity UI.
@@ -183,7 +183,7 @@ Export as high-fidelity UI.
 ┌────────────────────────────┐
 │                            │
 │       [ App Icon ]         │
-│       空耳學單字            │
+│       空耳聯合國            │
 │  登入後同步單字卡與使用額度  │
 │                            │
 │  ┌──────────────────────┐  │
@@ -214,8 +214,8 @@ Export as high-fidelity UI.
 **Stitch Prompt**
 
 ```text
-Design Android login screen for「空耳學單字」in Traditional Chinese.
-Top: app icon + title「空耳學單字」+ helper「登入後同步單字卡與使用額度」.
+Design Android login screen for「空耳聯合國」in Traditional Chinese.
+Top: app icon + title「空耳聯合國」+ helper「登入後同步單字卡與使用額度」.
 Form: Email field, Password field with show/hide.
 Primary filled button「登入」.
 Text link「忘記密碼？」.
@@ -265,7 +265,7 @@ Light mode, clean mobile auth layout, one primary CTA only, no social feed, no e
 **Stitch Prompt**
 
 ```text
-Design Android register screen「建立帳號」in Traditional Chinese for「空耳學單字」.
+Design Android register screen「建立帳號」in Traditional Chinese for「空耳聯合國」.
 AppBar with back and title.
 Fields: 顯示名稱（選填）, Email, 密碼（至少 8 碼）, 確認密碼.
 Checkbox「我已閱讀隱私權政策」.
@@ -314,7 +314,7 @@ Minimal and calm, same design system as login.
 ```
 ┌────────────────────────────┐
 │                            │
-│       歡迎使用空耳學單字     │
+│       歡迎使用空耳聯合國     │
 │                            │
 │  1. 輸入或拍照取得外語單字   │
 │  2. AI 自動判斷語言並產空耳  │
@@ -334,8 +334,8 @@ Minimal and calm, same design system as login.
 **Stitch Prompt**
 
 ```text
-Design Android onboarding/welcome screen for「空耳學單字」in Traditional Chinese.
-Title「歡迎使用空耳學單字」.
+Design Android onboarding/welcome screen for「空耳聯合國」in Traditional Chinese.
+Title「歡迎使用空耳聯合國」.
 Three numbered steps:
 1 輸入或拍照取得外語單字
 2 AI 自動判斷語言並產空耳
@@ -353,7 +353,7 @@ Friendly educational tone, not a marketing landing page, light mode.
 
 ```
 ┌────────────────────────────┐
-│ 空耳學單字          [⚙設定] │
+│ 空耳聯合國          [⚙設定] │
 ├────────────────────────────┤
 │ 今日剩餘 AI 次數：12        │
 │                            │
@@ -390,7 +390,7 @@ Friendly educational tone, not a marketing landing page, light mode.
 **Stitch Prompt**
 
 ```text
-Design Android home screen for「空耳學單字」in Traditional Chinese.
+Design Android home screen for「空耳聯合國」in Traditional Chinese.
 AppBar: product name left, settings icon right.
 Quota line:「今日剩餘 AI 次數：12」.
 Short support copy:「用發音記住外語單字」「支援多語自動偵測」.
@@ -624,7 +624,7 @@ Calm waiting state, not a game loading screen.
 **Stitch Prompt**
 
 ```text
-Design Android result screen「分析結果」for「空耳學單字」in Traditional Chinese. This is the key screen.
+Design Android result screen「分析結果」for「空耳聯合國」in Traditional Chinese. This is the key screen.
 AppBar back + title.
 Hero word「สวัสดี」large.
 Language chip/line「泰語 · th-TH」.
@@ -797,7 +797,7 @@ Stitch 完成後請確認：
 ## 7. 一次貼給 Stitch 的總開場 Prompt
 
 ```text
-You are designing a complete Android MVP app UI in Traditional Chinese for「空耳學單字」(Soraeru), a Taiwan pronunciation-mnemonic vocabulary app.
+You are designing a complete Android MVP app UI in Traditional Chinese for「空耳聯合國」(Soraeru), a Taiwan pronunciation-mnemonic vocabulary app.
 
 Product: user signs in (Google or email), types a foreign word or picks a photo for on-device OCR, AI auto-detects language, returns meaning + formal reading/TTS + 2–3 Chinese 「空耳」mnemonic candidates, user saves to notebook. Quota shown on home/settings. Future paid plan is only previewed, not billed.
 
@@ -855,7 +855,7 @@ Start with design tokens/components, then screens L00→L13, then interactive fl
 
 | 優先 | 畫面 | 問題 | 實作對齊建議 |
 |---|---|---|---|
-| P0 | L05 首頁 | AppBar 顯示英文 `Soraeru`＋漢堡選單；右側是帳號圖示 | 改為「空耳學單字」＋右側⚙設定；首頁不需漢堡 |
+| P0 | L05 首頁 | AppBar 顯示英文 `Soraeru`＋漢堡選單；右側是帳號圖示 | 改為「空耳聯合國」＋右側⚙設定；首頁不需漢堡 |
 | P0 | L05 | 底部 `Home / Notebook / Settings` 英文底欄 | MVP 改繁中，或拿掉底欄、改用首頁三入口＋設定 Icon |
 | P0 | L10 | AppBar 是 menu＋Soraeru＋account，不像「分析結果」子頁 | 改←返回＋標題「分析結果」 |
 | P0 | L13 | 額度寫「本月剩餘 42/50 句」＋醒目「升級方案」 | 改「今日剩餘：12／20」；方案 Free＋「付費方案即將推出」弱提示，勿像付費 CTA |
@@ -894,10 +894,10 @@ Start with design tokens/components, then screens L00→L13, then interactive fl
 ## 9. 可貼回 Stitch 的修正 Prompt
 
 ```text
-Please revise the existing Soraeru /「空耳學單字」Android screens to match the frozen MVP specs. Keep the current Deep Teal design system (colors, Hanken Grotesk / Noto Sans / JetBrains Mono, banners, sticky bars). Only fix these issues:
+Please revise the existing Soraeru /「空耳聯合國」Android screens to match the frozen MVP specs. Keep the current Deep Teal design system (colors, Hanken Grotesk / Noto Sans / JetBrains Mono, banners, sticky bars). Only fix these issues:
 
 1) L05 Home
-- AppBar title must be Traditional Chinese「空耳學單字」(not English Soraeru).
+- AppBar title must be Traditional Chinese「空耳聯合國」(not English Soraeru).
 - Right action = settings gear. Remove hamburger/menu and account avatar from AppBar.
 - Remove the English BottomNav (Home/Notebook/Settings). Navigation is: three home entries (輸入單字 / 拍照／選擇圖片 / 我的單字卡) + settings icon.
 - Keep quota as「今日剩餘 AI 次數：12」and the mnemonic disclaimer.

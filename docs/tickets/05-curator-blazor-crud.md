@@ -18,7 +18,7 @@ App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖
 
 新建並分開部署的策展端 Blazor Server 應用。流程：Google 登入（本機可輔以 Email）→ email ∈ 允許清單（`IsDeveloper`／`DeveloperAccounts`）才進入維護 UI；對 04 的管理 API 做最小 CRUD 畫面（語言、原詞、displayText、notationText、explanation、啟用／下架、列表／搜尋）。非允許清單不得使用策展 UI。不開社群投稿／審核佇列。驗證上架後，學習者側分析同鍵命中行為已由 04 保證；本票以策展者操作路徑可 demo 為驗收。
 
-另：策展可檢視 `LlmUsage`、變更執行期 LLM ApiKey／Model／BaseUrl（SQLite 覆寫）；可管理帳號列表、開發者旗標、重置密碼；帳號列表顯示登入次數／最後登入時間。
+另：策展可檢視 `LlmUsage`、變更執行期 LLM ApiKey／Model／BaseUrl（SQLite 覆寫）；可管理帳號列表、開發者旗標、重置密碼；帳號列表顯示 **App** 登入次數／最後登入時間／建立時間（不含策展登入）。
 
 ## Acceptance criteria
 
@@ -31,7 +31,7 @@ App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖
 - [x] 策展者可查看遮罩金鑰與今日用量摘要；可變更 ApiKey／Model／BaseUrl（SQLite，立刻生效）。
 - [x] 文字分析寫入 `LlmUsage`（`text_analysis`）；非允許清單無法呼叫 LLM 管理 API。
 - [x] 策展者可於「帳號」頁列出使用者、切換 `IsDeveloper`（連動額度）、重置密碼（≥8）；登入 `SyncDeveloperFlag`＝名單 ∪ DB。
-- [x] 帳號列表顯示登入次數與最後登入時間（登入成功路徑寫入；migration `AddUserLoginStats`）。
+- [x] 帳號列表顯示 **App** 登入次數與最後登入時間（`client=app` 才寫入 `LoginCount`／`LastLoginAtUtc`；`client=curator` 不加計；migration `AddUserLoginStats`）。
 
 ## Notes（2026-09-10）
 
@@ -39,10 +39,11 @@ App MVP 功能閉環（07–10）已完成；解除 App-first 延後。宿主鎖
 - Railway：Curator 獨立部署；修復過 DataProtection Volume 權限、`blazor.web.js` 靜態資源、反向代理、LLM 用量 SQLite DateTimeOffset 彙總
 - 側欄：維護面預設顯示 LLM 設定／用量、帳號、登出；「已驗證空耳」「新增條目」已自 NavMenu 移除（頁面仍可直連）
 - 登入落地：成功後導向 `/accounts`
-- 測試：Application.Tests 含 CuratorUserAdmin／Auth developer sync／登入計次；Curator.Tests 閘門單測
+- **App／策展登入統計拆分（午後）**：auth 請求帶 `client`（`app`｜`curator`）；`LoginCount`／`LastLoginAtUtc` 僅 App；帳號頁欄位改「App 登入次數／App 最後登入」；AuthService 單測綠；App 送 `client=app` 並打 Release APK
+- 測試：Application.Tests 含 CuratorUserAdmin／Auth developer sync／登入計次（含 Curator 不加計）；Curator.Tests 閘門單測
 - 本機說明：[`docs/dev-setup-curator.md`](../dev-setup-curator.md)
 - ADR-0013：[`docs/adr/0013-llm-runtime-settings-sqlite.md`](../adr/0013-llm-runtime-settings-sqlite.md)
 - API：`GET/PUT /api/v1/curator/llm/settings`、`GET /api/v1/curator/llm/usage`
-- API：`GET /api/v1/curator/users`、`PATCH .../developer`、`POST .../reset-password`
+- API：`GET /api/v1/curator/users`、`PATCH .../developer`、`POST .../reset-password`；auth `POST /login`／`/google` 可選 `client`
 - 策展頁：`/llm-settings`、`/llm-usage`、`/accounts`（`/verified*` 仍存在、選單已藏）
-- 下一步：Google 登入煙測；金標 CRUD 端到端 demo 後勾剩餘 AC／改 done
+- 下一步：Google 登入煙測；金標 CRUD 端到端 demo 後勾剩餘 AC／改 done；歷史 LoginCount 若曾含策展登入不回溯修正

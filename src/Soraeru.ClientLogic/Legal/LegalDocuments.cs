@@ -11,7 +11,7 @@ public static class LegalDocuments
 
     public static string PrivacyBody =>
         """
-        本政策說明「空耳學單字」（Soraeru）如何處理您的資料。使用本應用即表示您知悉下列說明。
+        本政策說明「空耳聯合國」（Soraeru）如何處理您的資料。使用本應用即表示您知悉下列說明。
 
         一、帳號資料
         我們會處理您用於登入的 Email、顯示名稱，以及 Google 登入時由 Google 提供、經您同意的識別資訊，以便建立與維護帳號、發放登入權杖（JWT），並提供單字本與額度等服務。

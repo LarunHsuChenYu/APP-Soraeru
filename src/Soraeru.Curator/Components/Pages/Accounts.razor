@@ -14,6 +14,7 @@
 <h1>帳號</h1>
 <p class="text-muted">
     管理共用 API 資料庫中的使用者。開發者旗標寫入 DB（並調整每日額度）；登入時與 <code>DeveloperAccounts</code> 取聯集。
+    「App 登入次數／最後登入」僅統計行動 App 成功登入，不含策展站。
 </p>
 
 @if (!string.IsNullOrWhiteSpace(_error))
@@ -44,8 +45,8 @@ else
                 <th>每日額度</th>
                 <th>導覽完成</th>
                 <th>密碼</th>
-                <th>登入次數</th>
-                <th>最後登入時間</th>
+                <th>App 登入次數</th>
+                <th>App 最後登入</th>
                 <th>建立時間</th>
                 <th></th>
             </tr>

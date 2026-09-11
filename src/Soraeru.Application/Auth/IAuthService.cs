@@ -27,9 +27,23 @@ public interface IAuthService
 
 public sealed record RegisterEmailCommand(string Email, string Password, string? DisplayName = null);
 
-public sealed record LoginEmailCommand(string Email, string Password);
+/// <summary>
+/// Which product surface initiated auth. Only <see cref="App"/> updates login stats.
+/// </summary>
+public enum AuthClient
+{
+    App = 0,
+    Curator = 1
+}
 
-public sealed record LoginGoogleCommand(string IdToken);
+public sealed record LoginEmailCommand(
+    string Email,
+    string Password,
+    AuthClient Client = AuthClient.App);
+
+public sealed record LoginGoogleCommand(
+    string IdToken,
+    AuthClient Client = AuthClient.App);
 
 public sealed record ResetPasswordCommand(string Token, string NewPassword);
 

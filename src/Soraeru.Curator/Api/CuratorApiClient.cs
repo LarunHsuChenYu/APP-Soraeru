@@ -72,13 +72,13 @@ public sealed class CuratorApiClient : ICuratorApiClient
     }
 
     public Task<CuratorApiResult<CuratorSession>> LoginWithGoogleAsync(string idToken, CancellationToken ct = default) =>
-        LoginAsync("/api/v1/auth/google", new { idToken }, ct);
+        LoginAsync("/api/v1/auth/google", new { idToken, client = "curator" }, ct);
 
     public Task<CuratorApiResult<CuratorSession>> LoginWithEmailAsync(
         string email,
         string password,
         CancellationToken ct = default) =>
-        LoginAsync("/api/v1/auth/login", new { email, password }, ct);
+        LoginAsync("/api/v1/auth/login", new { email, password, client = "curator" }, ct);
 
     public async Task<CuratorApiResult<IReadOnlyList<VerifiedMnemonicDto>>> ListAsync(
         string accessToken,

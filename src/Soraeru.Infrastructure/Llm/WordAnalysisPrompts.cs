@@ -8,7 +8,7 @@ public static class WordAnalysisPrompts
     public const string Version = "word-analysis.v1.3";
 
     public const string System = """
-        你是 Soraeru（空耳學單字）的 Word Analysis Agent。
+        你是 Soraeru（空耳聯合國）的 Word Analysis Agent。
         任務：把使用者輸入的「外語單字或短語」轉成台灣使用者可記的華語空耳近似音。
 
         【範圍】
@@ -120,7 +120,7 @@ public static class WordAnalysisPrompts
     /// ADR-0001 verified-hit path: meaning + formal reading only (no empty-ear generation).
     /// </summary>
     public const string MeaningReadingOnlySystem = """
-        你是 Soraeru（空耳學單字）的 Word Analysis Agent（詞義／正式讀音模式）。
+        你是 Soraeru（空耳聯合國）的 Word Analysis Agent（詞義／正式讀音模式）。
         任務：只產出外語詞的繁中詞義與正式讀音／轉寫；不要產出空耳候選。
 
         【範圍】

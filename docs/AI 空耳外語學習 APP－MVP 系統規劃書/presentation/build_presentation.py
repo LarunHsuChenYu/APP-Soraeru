@@ -294,7 +294,7 @@ def add_footer(slide, page: int, total: int):
     tf = box.text_frame
     p = tf.paragraphs[0]
     run = p.add_run()
-    run.text = f"Soraeru｜空耳學單字 MVP ｜ v1.1"
+    run.text = f"Soraeru｜空耳聯合國 MVP ｜ v1.1"
     set_run(run, 11, False, MUTED)
     num = slide.shapes.add_textbox(Inches(11.5), Inches(7.05), Inches(1.4), Inches(0.35))
     p2 = num.text_frame.paragraphs[0]
@@ -389,7 +389,7 @@ def build_pptx():
     panel.fill.fore_color.rgb = RGBColor(0x00, 0x3A, 0x4C)
     panel.line.fill.background()
     add_text_box(s, Inches(0.8), Inches(1.6), Inches(6), Inches(0.5), "Soraeru  ·  Google Play MVP", 16, False, TEAL_SOFT)
-    add_text_box(s, Inches(0.8), Inches(2.2), Inches(6.2), Inches(1.2), "空耳學單字", 54, True, WHITE)
+    add_text_box(s, Inches(0.8), Inches(2.2), Inches(6.2), Inches(1.2), "空耳聯合國", 54, True, WHITE)
     add_text_box(s, Inches(0.8), Inches(3.4), Inches(6), Inches(0.8), "用發音，記住外語", 24, False, TEAL_SOFT)
     add_text_box(
         s,
@@ -721,7 +721,7 @@ def build_html():
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Soraeru｜空耳學單字 MVP 簡報</title>
+<title>Soraeru｜空耳聯合國 MVP 簡報</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -809,7 +809,7 @@ def build_html():
 <section class="slide cover active">
   <div class="cover-left">
     <div class="eyebrow">SORAERU · GOOGLE PLAY MVP</div>
-    <h1>空耳學單字</h1>
+    <h1>空耳聯合國</h1>
     <p class="sub">用發音，記住外語</p>
     <p style="margin-top:22px;max-width:560px;line-height:1.7;color:#d7eef8;font-size:18px;">
       外語發音 → 台灣華語空耳近似音 → 加速記憶。<br/>
@@ -1006,12 +1006,12 @@ def build_html():
     <div class="card"><h3>3–4</h3><p>多語 Prompt＋Analyze＋結果頁</p></div>
     <div class="card"><h3>5–6</h3><p>Notebook＋OCR＋TTS＋送審</p></div>
   </div>
-  <p class="sub" style="margin-top:24px;">產品暫名 Soraeru／空耳學單字 · 規劃書 v1.1 · Stitch DESIGN Deep Teal</p>
+  <p class="sub" style="margin-top:24px;">產品暫名 Soraeru／空耳聯合國 · 規劃書 v1.1 · Stitch DESIGN Deep Teal</p>
 </section>
 
 </div>
 <div class="nav">
-  <span>Soraeru｜空耳學單字 MVP</span>
+  <span>Soraeru｜空耳聯合國 MVP</span>
   <span class="hint">← → 或空白鍵切換 · F 全螢幕</span>
   <span id="page">1 / 16</span>
 </div>

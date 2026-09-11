@@ -82,3 +82,5 @@ date,person,hours,ticket,note,kind
 2026-09-10,Ashton,1.75,05,（估計）LLM 用量／Navi 修復＋帳號登入統計＋側欄精簡,backfill
 2026-09-10,Ashton,0.25,misc,（估計）App 簡易使用說明書 DOCX,backfill
 2026-09-10,Ashton,0.25,tickets,工時補登（transcript 稽核）與票05進度對齊,plan
+2026-09-10,Ashton,0.75,05,帳號頁 App 登入統計：auth client 區分 App/Curator、僅 App 計次＋欄位文案＋測試＋Release APK,dev
+2026-09-10,Ashton,0.25,tickets,收工：工時帳與票05進度對齊,plan

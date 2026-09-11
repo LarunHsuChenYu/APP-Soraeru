@@ -18,4 +18,4 @@
 | Status | `proposed` → `accepted`；被取代時改 `superseded by ADR-NNNN` |
 | 內容 | 背景＋決定＋取捨；夠短即可 |
 
-現有：`0001`…`0009`；OCR 腳本族／按需包見 **`0010-ocr-script-family-ondemand-tessdata.md`**。產品領域詞見 `../glossary.md`。
+現有：`0001`…`0012`；LLM 執行期設定／用量見 **`0013-llm-runtime-settings-sqlite.md`**。產品領域詞見 `../glossary.md`。

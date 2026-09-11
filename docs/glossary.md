@@ -1,6 +1,6 @@
 # Soraeru
 
-空耳外語學習產品（暫名 Soraeru／空耳學單字）的領域名詞表。  
+空耳外語學習產品（暫名 Soraeru／空耳聯合國）的領域名詞表。  
 **Status**: Station 1 已收斂（含 ADR-0007 Client-first 單字本、ADR-0008 本機短路）；規格見 `docs/specs/`。
 
 ## Meta
@@ -122,3 +122,37 @@ _Avoid_: Developer Platform、開發者平台
 **策展者**:
 可進策展端維護已驗證空耳的人。現階段＝Google email 允許清單（可與既有開發者允許清單對齊）；**社群投稿明確延後**；投稿審核閘現階段不設計。
 _Avoid_: Developer（口語）、任意登入使用者、社群貢獻者（尚未開放）
+
+## Monetization（混合獲利 · v2.1）
+
+**PlanTier（方案階梯）**:
+使用者訂閱與權益層級：`Free` 或 `Pro`。由 `GET /me` 回傳；App 不自行推斷 VIP 狀態。
+_Avoid_: 在客戶端快取過期的 Pro、混用點數餘額概念
+
+**Billing Anchor（訂閱週期錨點）**:
+Pro 訂閱的週期起算日（與 Play／TapPay 扣款對齊）。**AI 圖 30 次額度**於每個 Anchor 續訂日重置，**非**自然月 1 號。
+_Avoid_: 用日曆月 `yyyy-MM` 當 AI 圖重置鍵、8/30 訂閱 9/1 又刷額的漏洞
+
+**AdBonusQuota（廣告贈送額度）**:
+當日透過 **Rewarded Video** 完整觀看並經 **SSV** 驗簽後，額外可用的文字分析次數（每則 +2，每日最多 3 則）。先扣 `DailyFreeQuota` 再扣本欄位。App 須在 SSV 入庫前 **輪詢 `/me`**，不可立刻分析。
+_Avoid_: 未驗簽就加額、把廣告額度當成 AI 圖額度、SSV 延遲時立刻重播廣告
+
+**SubscriptionGuard（訂閱閘）**:
+後端守衛：僅在 `PlanTier=Pro` 且訂閱未過期時允許 **AI 圖候選** 等 Pro 專屬 API；與混合日額的 `QuotaService` 分開。
+_Avoid_: 用 PaymentGuard 名稱（本專案為訂閱制）、讓 Free 透過廣告解鎖 AI 圖
+
+**AI 圖候選（Vision 候選字）**:
+Pro 專屬：上傳圖片至 `POST /image/candidates`，Vision 回傳多個候選外語字；使用者選一字後走既有文字空耳分析。**30 次/訂閱週期**；**0 候選不扣額**。
+_Avoid_: 一段式 Vision 直接產空耳、Free OCR 路徑上傳原圖、空白圖仍扣 AI 圖次數
+
+**單字卡唯讀鎖定（Notebook Read-Only Lock）**:
+Pro 過期或上限降級後，若卡片數超過當前 `NotebookCardLimit`，既有卡可查複習但 **禁止新增**，直到刪減至上限以下或重新訂閱 Pro。
+_Avoid_: 降級時強制刪卡、 silently 阻擋查閱
+
+**Anti-Steering（Play 導外禁令）**:
+Google Play 政策：App 內不得引導使用者至外部網站購買較便宜的數位訂閱。TapPay 僅供 **Web 官網**；Android App 僅 Play Billing。
+_Avoid_: 設定頁放 pay.soraeru.com、「官網更便宜」文案
+
+**SSV（Server-Side Verification）**:
+AdMob 獎勵廣告的伺服器端 ECDSA 簽章驗證；`GET /ads/admob-ssv-callback` 通過後才增加 `AdBonusQuota` 並寫入 `AdRewardLogs`。
+_Avoid_: 僅信客戶端 `onRewarded` callback、未記錄稽核

@@ -21,13 +21,13 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>空耳學單字</ApplicationTitle>
+		<ApplicationTitle>空耳聯合國</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.soraeru.app</ApplicationId>
 
 		<!-- Versions: display v1.0.x (patch only). ApplicationVersion = Android versionCode. -->
-		<ApplicationDisplayVersion>1.0.1</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.0.2</ApplicationDisplayVersion>
 		<ApplicationVersion>2</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->

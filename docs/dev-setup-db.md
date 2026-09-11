@@ -69,6 +69,7 @@ dotnet ef migrations add <Name> --project src/Soraeru.Infrastructure --startup-p
 
 - `larun70@gmail.com`
 - `avai.hsu@gmail.com`
+- `aben8622@gmail.com`
 
 行為：
 

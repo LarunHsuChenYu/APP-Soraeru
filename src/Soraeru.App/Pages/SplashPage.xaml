@@ -34,7 +34,7 @@
             </Image>
 
             <Label x:Name="TitleLabel"
-                   Text="空耳學單字"
+                   Text="空耳聯合國"
                    TextColor="{StaticResource OnSurface}"
                    FontSize="36"
                    FontAttributes="Bold"

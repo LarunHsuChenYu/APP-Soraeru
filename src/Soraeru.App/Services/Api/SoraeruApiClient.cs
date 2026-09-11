@@ -26,12 +26,12 @@ public sealed class SoraeruApiClient : ISoraeruApiClient
         string email,
         string password,
         CancellationToken cancellationToken = default) =>
-        PostAuthAsync("api/v1/auth/login", new { email, password }, cancellationToken);
+        PostAuthAsync("api/v1/auth/login", new { email, password, client = "app" }, cancellationToken);
 
     public Task<AuthResult> LoginWithGoogleAsync(
         string idToken,
         CancellationToken cancellationToken = default) =>
-        PostAuthAsync("api/v1/auth/google", new { idToken }, cancellationToken);
+        PostAuthAsync("api/v1/auth/google", new { idToken, client = "app" }, cancellationToken);
 
     public Task<AuthResult> RegisterWithEmailAsync(
         string email,

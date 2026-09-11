@@ -175,6 +175,11 @@ public static class OcrCyrillicHomoglyphNormalizer
         if (leftQ > rightQ)
             return left;
 
+        var leftNoise = OcrTextTokenizer.ScoreCyrillicLineNoise(left);
+        var rightNoise = OcrTextTokenizer.ScoreCyrillicLineNoise(right);
+        if (leftNoise != rightNoise)
+            return leftNoise < rightNoise ? left : right;
+
         var leftCyr = CountCyrillicRunes(left);
         var rightCyr = CountCyrillicRunes(right);
         return rightCyr > leftCyr ? right : left;

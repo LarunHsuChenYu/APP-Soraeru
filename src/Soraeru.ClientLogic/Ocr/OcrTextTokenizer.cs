@@ -8,7 +8,39 @@ public static class OcrTextTokenizer
 {
     public const int MaxTokenLength = 50;
 
-    public static IReadOnlyList<string> Tokenize(string? text)
+    public static IReadOnlyList<string> Tokenize(string? text) =>
+        FilterTokens(text, dedupe: true);
+
+    /// <summary>
+    /// Rebuilds whitespace-separated text without icon/UI noise tokens (keeps order, no dedupe).
+    /// </summary>
+    public static string StripNoiseTokens(string? text)
+    {
+        var kept = FilterTokens(text, dedupe: false);
+        return kept.Count == 0 ? string.Empty : string.Join(' ', kept);
+    }
+
+    /// <summary>
+    /// Higher score means more icon/UI debris relative to the cleaned line (for picking among OCR passes).
+    /// </summary>
+    public static int ScoreCyrillicLineNoise(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || !OcrScriptQuality.ContainsCyrillic(text))
+            return 0;
+
+        var rawParts = text.Split(
+            (char[]?)null,
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (rawParts.Length == 0)
+            return 0;
+
+        var kept = FilterTokens(text, dedupe: false);
+        var removedTokens = rawParts.Length - kept.Count;
+        var removedChars = Math.Max(0, text.Length - string.Join(' ', kept).Length);
+        return removedTokens * 30 + removedChars;
+    }
+
+    static IReadOnlyList<string> FilterTokens(string? text, bool dedupe)
     {
         if (string.IsNullOrWhiteSpace(text))
             return Array.Empty<string>();
@@ -16,53 +48,30 @@ public static class OcrTextTokenizer
         var parts = text.Split(
             (char[]?)null,
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+            return Array.Empty<string>();
 
         var cyrillicContext = OcrScriptQuality.ContainsCyrillic(text);
-        var result = new List<string>(parts.Length);
-        var seen = new HashSet<string>(StringComparer.Ordinal);
+        parts = TrimLeadingIconPrefix(parts, cyrillicContext);
 
-        foreach (var part in parts)
+        var result = new List<string>(parts.Length);
+        HashSet<string>? seen = dedupe ? new HashSet<string>(StringComparer.Ordinal) : null;
+
+        for (var i = 0; i < parts.Length; i++)
         {
-            var token = Truncate(part);
+            var token = Truncate(parts[i]);
             if (token.Length == 0)
                 continue;
             if (!IsLikelyVocabularyToken(token, cyrillicContext))
                 continue;
-            if (!seen.Add(token))
+            if (cyrillicContext && IsMidSentenceCapitalizedOutlier(token, parts, i))
+                continue;
+            if (seen is not null && !seen.Add(token))
                 continue;
             result.Add(token);
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Rebuilds whitespace-separated text without icon/UI noise tokens (keeps order, no dedupe).
-    /// </summary>
-    public static string StripNoiseTokens(string? text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return text ?? string.Empty;
-
-        var parts = text.Split(
-            (char[]?)null,
-            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (parts.Length == 0)
-            return string.Empty;
-
-        var cyrillicContext = OcrScriptQuality.ContainsCyrillic(text);
-        var kept = new List<string>(parts.Length);
-        foreach (var part in parts)
-        {
-            var token = Truncate(part);
-            if (token.Length == 0)
-                continue;
-            if (!IsLikelyVocabularyToken(token, cyrillicContext))
-                continue;
-            kept.Add(token);
-        }
-
-        return kept.Count == 0 ? string.Empty : string.Join(' ', kept);
     }
 
     /// <summary>
@@ -120,16 +129,160 @@ public static class OcrTextTokenizer
         }
 
         // Beside Cyrillic: drop Latin-only crumbs from icons / borders.
-        if (latinLetters > 0 && latinLetters <= 3 && junk > 0)
-            return false;
+        if (cyrillicLetters == 0 && latinLetters > 0)
+        {
+            if (latinLetters <= 3 && junk > 0)
+                return false;
 
-        if (latinLetters == 1 && junk == 0)
-            return false;
+            if (latinLetters == 1 && junk == 0)
+                return false;
 
-        if (latinLetters is >= 1 and <= 3 && IsAllAsciiUpper(token))
-            return false;
+            // Pure Latin short tokens (pea, OK, PP) without Cyrillic.
+            if (junk == 0)
+            {
+                if (latinLetters <= 3)
+                    return false;
+
+                if (latinLetters <= 4 && (IsAllAsciiUpper(token) || IsAllAsciiLower(token)))
+                    return false;
+            }
+        }
 
         return true;
+    }
+
+    /// <summary>
+    /// Drops short prefix tokens before the first capitalized Cyrillic anchor (speaker-icon debris).
+    /// </summary>
+    static string[] TrimLeadingIconPrefix(string[] parts, bool cyrillicContext)
+    {
+        if (!cyrillicContext || parts.Length < 2)
+            return parts;
+
+        var anchorIdx = -1;
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (IsSentenceAnchor(parts[i]))
+            {
+                anchorIdx = i;
+                break;
+            }
+        }
+
+        if (anchorIdx <= 0)
+            return parts;
+
+        for (var i = 0; i < anchorIdx; i++)
+        {
+            if (!IsLeadingDebrisToken(parts[i]))
+                return parts;
+        }
+
+        return parts[anchorIdx..];
+    }
+
+    /// <summary>
+    /// Capitalized 4+ Cyrillic token mid-sentence when lowercase words follow (UI/icon hallucination).
+    /// </summary>
+    static bool IsMidSentenceCapitalizedOutlier(string token, string[] parts, int index)
+    {
+        if (index <= 0)
+            return false;
+
+        var cyrillicLetters = CountCyrillicLetters(token);
+        if (cyrillicLetters < 4 || !StartsWithUppercaseCyrillic(token))
+            return false;
+
+        for (var j = index + 1; j < parts.Length; j++)
+        {
+            if (HasLowercaseCyrillic(parts[j]))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool IsSentenceAnchor(string token) =>
+        CountCyrillicLetters(token) >= 3 && StartsWithUppercaseCyrillic(token);
+
+    static bool IsLeadingDebrisToken(string token)
+    {
+        if (IsLatinOnlyAscii(token))
+            return true;
+
+        return CountCyrillicLetters(token) <= 2;
+    }
+
+    static bool IsLatinOnlyAscii(string token)
+    {
+        var latin = 0;
+        foreach (var rune in token.EnumerateRunes())
+        {
+            var v = rune.Value;
+            if (OcrScriptQuality.IsLatinLetter(v))
+            {
+                latin++;
+                continue;
+            }
+
+            if (v is not ('-' or '\'' or '\u2019' or '.'))
+                return false;
+        }
+
+        return latin > 0;
+    }
+
+    static bool StartsWithUppercaseCyrillic(string token)
+    {
+        foreach (var rune in token.EnumerateRunes())
+        {
+            if (!OcrScriptQuality.IsCyrillicScript(rune.Value))
+                continue;
+
+            return char.IsUpper(char.ConvertFromUtf32(rune.Value), 0);
+        }
+
+        return false;
+    }
+
+    static bool HasLowercaseCyrillic(string token)
+    {
+        foreach (var rune in token.EnumerateRunes())
+        {
+            if (OcrScriptQuality.IsCyrillicScript(rune.Value)
+                && char.IsLower(char.ConvertFromUtf32(rune.Value), 0))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static int CountCyrillicLetters(string token)
+    {
+        var count = 0;
+        foreach (var rune in token.EnumerateRunes())
+        {
+            if (OcrScriptQuality.IsCyrillicScript(rune.Value))
+                count++;
+        }
+
+        return count;
+    }
+
+    static bool IsAllAsciiLower(string token)
+    {
+        var sawLetter = false;
+        foreach (var ch in token)
+        {
+            if (ch is >= 'A' and <= 'Z')
+                return false;
+            if (ch is >= 'a' and <= 'z')
+                sawLetter = true;
+        }
+
+        return sawLetter;
     }
 
     static bool IsAllowedSingleCyrillicWord(string token)

@@ -19,7 +19,7 @@ Glossary: [`docs/glossary.md`](../glossary.md) · ADRs: [`docs/adr/`](../adr/)�
 
 **Frontier：**
 
-- **[05](05-curator-blazor-crud.md)** — 策展端 Blazor Server：Railway 已上線；LLM／帳號／登入統計；金標 CRUD 煙測待勾
+- **[05](05-curator-blazor-crud.md)** — 策展端 Blazor Server：Railway 已上線；LLM／帳號／**App** 登入統計；金標 CRUD 煙測待勾
 - **[11](11-app-closed-testing.md)** — 封閉測試就緒與缺陷收斂（上架軌；可與 05 並行）
 
 ## 手動驗證快照（2026-08-21）
@@ -54,7 +54,7 @@ App 功能閉環（07–10）已完成；**恢復策展 Blazor（05）**（宿�
 | [02](02-hard-gate-llm-draft.md) | 信任閘／基礎 | 後處理硬閘＋LLM 草稿標示 | done | `MnemonicHardGate`＋App 草稿橫幅已交付 | 已跑-有開放項 | 自動（Application.Tests）＋手動（草稿橫幅 UI） | 01 | — | **手動已驗證（08-13）**；Hangul 拒收文案已收斂；Standards 指出 EF Core 硬違規仍待後續收斂 | 0.5h（08-10）＋0.5h（08-13） |
 | [03](03-notebook-end-to-end.md) | 信任閘／基礎 | 單字本端到端可存可查（歷史雲端鏡像） | done | 雲端鏡像 CRUD 基礎；角色已由 13–15 重釋 | 未跑 | 自動+手動 | — | — | 語意已過渡至 Client-first | 0.75h（08-10） |
 | [04](04-verified-override-and-api.md) | 信任閘／基礎 | 已驗證空耳管理 API＋分析金標優先覆寫 | done | 策展 CRUD＋分析命中金標跳過 LLM | 已跑-有開放項 | 自動（Application.Tests）＋手動（verified 標示 UI） | 02 | 策展以 API 建金標後再驗標示 | **金標待策展建立**（非使用者自建；05 Blazor deferred） | 0.5h（08-11） |
-| [05](05-curator-blazor-crud.md) | Web／策展 | 策展端 Blazor Server：金標 CRUD＋LLM 設定／用量 | **in-progress** | Railway 已部署；LLM／帳號／登入統計；側欄藏金標入口；金標端到端煙測待做 | 未跑 | 自動＋手動 | 04 done | Google 登入＋金標 CRUD demo 後勾 AC | 生產 Volume／靜態資源曾踩坑已修 | 3.0h（09-04）＋5.75h（09-09）＋1.75h（09-10） |
+| [05](05-curator-blazor-crud.md) | Web／策展 | 策展端 Blazor Server：金標 CRUD＋LLM 設定／用量 | **in-progress** | Railway 已部署；LLM／帳號／App 登入統計（與策展登入拆分）；側欄藏金標入口；金標端到端煙測待做 | 未跑 | 自動＋手動 | 04 done | Google 登入＋金標 CRUD demo 後勾 AC | 生產 Volume／靜態資源曾踩坑已修 | 3.0h（09-04）＋5.75h（09-09）＋2.5h（09-10） |
 | [06](06-web-learner-mvp1.md) | Web／策展 | Web 學習端薄 MVP1 | **deferred** | 等 05；單字本＝雲端鏡像過渡 | 不適用 | 手動（Web 煙測） | 02、03；建議 05 後 | 05 後恢復 | — | — |
 | [07](07-app-ocr-select-one.md) | App MVP | 裝置端 OCR 選一字進分析 | done | 混合 OCR；語系別文案；阿語翻拍預處理；西里爾短詞僅 ect/ест 校正 | 已跑-有開放項 | 自動+手動（實機 OCR 品質） | — | 西里爾三按鈕短詞仍可能失敗；多腳本實機品質 | **語言包約 37 MB**；螢幕翻拍／稀疏短詞不保證 | 0.5h（08-11）＋0.5h 規劃（08-13）＋1.5h（08-21）＋1.0h（08-24）＋3.75h（08-25）＋3.0h（08-26） |
 | [08](08-app-tts-formal-reading.md) | App MVP | 播放正式發音（系統 TTS） | done | 結果／詳情／列表系統 TTS 已接 | 已跑-有開放項 | 自動+手動（TTS 實機聽感／缺語音包提示） | — | — | **手動已驗證（08-13）**；缺語音包提示僅文字，尚無深連結 | 1.5h（08-12）＋0.25h（08-13） |

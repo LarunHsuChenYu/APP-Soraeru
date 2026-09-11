@@ -301,7 +301,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph SCREEN["首次使用說明"]
-        TITLE["AI 空耳學單字"]
+        TITLE["AI 空耳聯合國"]
         ICON["語言／發音插圖"]
         DESC1["輸入單字或拍照取字"]
         DESC2["AI 產生台灣華語近似音"]
@@ -325,7 +325,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     subgraph HOME["首頁"]
-        HEADER["AI 空耳學單字"]
+        HEADER["AI 空耳聯合國"]
         SUBTITLE["輸入單字，快速建立記憶提示"]
         WORD_BUTTON["⌨ 輸入單字"]
         IMAGE_BUTTON["📷 拍照／選擇圖片"]

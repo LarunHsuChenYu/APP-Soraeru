@@ -104,8 +104,7 @@ public sealed class AuthService : IAuthService
             return ServiceResult<AuthSession>.Failure("INVALID_CREDENTIALS", "Invalid email or password.");
         }
 
-        user = await SyncDeveloperFlagAsync(user, cancellationToken);
-        user = await RecordSuccessfulLoginAsync(user, cancellationToken);
+        user = await AfterSuccessfulAuthAsync(user, command.Client, cancellationToken);
         return ServiceResult<AuthSession>.Success(ToSession(user));
     }
 
@@ -138,8 +137,7 @@ public sealed class AuthService : IAuthService
         var bySubject = await _users.FindByGoogleSubjectAsync(payload.Subject, cancellationToken);
         if (bySubject is not null)
         {
-            bySubject = await SyncDeveloperFlagAsync(bySubject, cancellationToken);
-            bySubject = await RecordSuccessfulLoginAsync(bySubject, cancellationToken);
+            bySubject = await AfterSuccessfulAuthAsync(bySubject, command.Client, cancellationToken);
             return ServiceResult<AuthSession>.Success(ToSession(bySubject));
         }
 
@@ -164,8 +162,7 @@ public sealed class AuthService : IAuthService
                 DisplayName = displayName
             };
             await _users.UpdateAsync(bound, cancellationToken);
-            bound = await SyncDeveloperFlagAsync(bound, cancellationToken);
-            bound = await RecordSuccessfulLoginAsync(bound, cancellationToken);
+            bound = await AfterSuccessfulAuthAsync(bound, command.Client, cancellationToken);
             return ServiceResult<AuthSession>.Success(ToSession(bound));
         }
 
@@ -190,8 +187,7 @@ public sealed class AuthService : IAuthService
             LastLoginAtUtc: null);
 
         await _users.AddAsync(created, cancellationToken);
-        created = await SyncDeveloperFlagAsync(created, cancellationToken);
-        created = await RecordSuccessfulLoginAsync(created, cancellationToken);
+        created = await AfterSuccessfulAuthAsync(created, command.Client, cancellationToken);
         return ServiceResult<AuthSession>.Success(ToSession(created));
     }
 
@@ -268,7 +264,24 @@ public sealed class AuthService : IAuthService
         return updated;
     }
 
-    private async Task<UserRecord> RecordSuccessfulLoginAsync(UserRecord user, CancellationToken cancellationToken)
+    private async Task<UserRecord> AfterSuccessfulAuthAsync(
+        UserRecord user,
+        AuthClient client,
+        CancellationToken cancellationToken)
+    {
+        user = await SyncDeveloperFlagAsync(user, cancellationToken);
+        // LoginCount / LastLoginAtUtc are App-only metrics for curator Accounts UI.
+        if (client == AuthClient.App)
+        {
+            user = await RecordSuccessfulAppLoginAsync(user, cancellationToken);
+        }
+
+        return user;
+    }
+
+    private async Task<UserRecord> RecordSuccessfulAppLoginAsync(
+        UserRecord user,
+        CancellationToken cancellationToken)
     {
         var updated = user with
         {

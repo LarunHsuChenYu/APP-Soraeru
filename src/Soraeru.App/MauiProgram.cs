@@ -156,7 +156,7 @@ public static class MauiProgram
 #endif
     }
 
-    private const string ProductionApiBaseUrl = "https://airy-enjoyment-production-de0f.up.railway.app/";
+    private const string ProductionApiBaseUrl = "https://soraeru.ash-ben.com/";
 
     private static string LocalApiBaseUrl() =>
 #if WINDOWS

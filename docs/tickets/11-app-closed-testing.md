@@ -39,7 +39,7 @@
 - **已修（08-21）**：單字本列表語言>5 picker `AutomationId` 重複設值 →「讀取失敗」（見票 13）；OCR session 清空＋來源語自動預選（見票 07）。
 - **仍待**：封閉測試建置／§15 檢核表整包；07 實機多腳本 OCR 品質煙測；其餘 13 殘餘（離線 JWT、UsageDaily 孤兒）不阻擋本票開工。
 - **API／打包（08-24）**：
-  - Railway API 已上線（Dockerfile／Volume／公開網域／`/health`）；Android Release 預設 BaseAddress＝`https://airy-enjoyment-production-de0f.up.railway.app/`（`MauiProgram.ProductionApiBaseUrl`）；Debug 模擬器仍 `10.0.2.2:5080`。
+  - Railway API 已上線（Dockerfile／Volume／公開網域／`/health`）；Android Release 預設 BaseAddress＝`https://soraeru.ash-ben.com/`（`MauiProgram.ProductionApiBaseUrl`）；Debug 模擬器仍 `10.0.2.2:5080`。
   - 曾試自訂網域 `tocc.top` 打包 APK → **SSL 主機名／憑證不符**（基礎設施憑證問題）；**不做** App 端 SSL bypass；已改回 Railway URL。若最後簽章 APK 仍指 tocc.top，需再打一包指向 Railway。
   - 切換見 `MauiProgram.ResolveApiBaseUrl`／`docs/dev-setup-railway.md`。狀態仍 `ready-for-agent`（§15 整包未勾）。
 - **實機包／skill（08-26）**：

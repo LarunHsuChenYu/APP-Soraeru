@@ -132,7 +132,7 @@ copy GoogleAuth.Debug.json.example GoogleAuth.Debug.json
 
 Package 名：`com.soraeru.app`。
 
-API BaseAddress：Debug 模擬器 `http://10.0.2.2:5080/`；Android Release／封閉測試 APK 為 `https://airy-enjoyment-production-de0f.up.railway.app/`（見 `MauiProgram.ResolveApiBaseUrl`）。實機 Debug 可定義 `USE_RAILWAY_API` 或改 LAN IP。
+API BaseAddress：Debug 模擬器 `http://10.0.2.2:5080/`；Android Release／封閉測試 APK 為 `https://soraeru.ash-ben.com/`（見 `MauiProgram.ResolveApiBaseUrl`）。實機 Debug 可定義 `USE_RAILWAY_API` 或改 LAN IP。
 
 ## 6. Windows vs Android
 

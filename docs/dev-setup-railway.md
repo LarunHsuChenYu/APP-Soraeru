@@ -92,7 +92,7 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 - 忘記密碼：token 在行程記憶體，信只進 log；封閉測試請用 Email 註冊或 Google。
 - 分析快取是行程內記憶體：redeploy 後清空（可能再扣額度）。
 - SQLite = MVP 單實例；要多區／多副本再遷 Postgres（另開 ADR）。
-- App **Android Release／封閉測試 APK** 預設打公開 HTTPS（`MauiProgram.ResolveApiBaseUrl` → `https://airy-enjoyment-production-de0f.up.railway.app/`）。**Debug** 模擬器仍用 `http://10.0.2.2:5080/`。切回本機 Release：編譯常數 `USE_LOCAL_API`；Debug 強制雲端：`USE_RAILWAY_API`。
+- App **Android Release／封閉測試 APK** 預設打公開 HTTPS（`MauiProgram.ResolveApiBaseUrl` → `https://soraeru.ash-ben.com/`）。**Debug** 模擬器仍用 `http://10.0.2.2:5080/`。切回本機 Release：編譯常數 `USE_LOCAL_API`；Debug 強制雲端：`USE_RAILWAY_API`。
 
 ## 6. CORS（現在空、Web 之後）
 
@@ -117,7 +117,7 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 
 部署順序固定為 **既有 API → 新 Curator**：
 
-1. 先讓既有 **API 服務**使用含 `/api/v1/curator/*`（verified CRUD、LLM、accounts）的版本；確認 `GET https://airy-enjoyment-production-de0f.up.railway.app/health`＝200。保留既有 `/app/data` Volume 與單 replica。
+1. 先讓既有 **API 服務**使用含 `/api/v1/curator/*`（verified CRUD、LLM、accounts）的版本；確認 `GET https://soraeru.ash-ben.com/health`＝200。保留既有 `/app/data` Volume 與單 replica。
 2. Canvas **+ New** → **GitHub Repo** → 選同一 repo，建立第二個服務（建議名稱 `soraeru-curator`）。
 3. Curator 服務 → **Settings → Source → Add Root Directory**，填入 `/src/Soraeru.Curator`。若 UI 自動移除前導 `/`，最後顯示 `src/Soraeru.Curator` 是同一設定。
 4. 同頁 **Build** 確認 Builder 為 `Dockerfile`，並將 **Dockerfile Path 清空**；Railway 會使用隔離根目錄內的 `Dockerfile`。不要設定 Custom Config File，也不要設定 `RAILWAY_DOCKERFILE_PATH`。
@@ -129,7 +129,7 @@ Railway 預設用 **Railpack**。若 GitHub 還沒有根目錄 `Dockerfile`，�
 | 變數 | 值 |
 |------|-----|
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
-| `Curator__ApiBaseUrl` | `https://airy-enjoyment-production-de0f.up.railway.app` |
+| `Curator__ApiBaseUrl` | `https://soraeru.ash-ben.com` |
 | `DataProtection__KeysPath` | `/app/data-protection-keys` |
 
    `PORT` 由 Railway 注入，程式會直接讀取；不需要 `ASPNETCORE_URLS`。Curator **不需要也不應設定** `Jwt__SigningKey`、API 的 Connection String 或 LLM key；它透過 `Curator__ApiBaseUrl` 呼叫既有 API。`DataProtection__KeysPath` 只控制框架 cookie／antiforgery 金鑰位置。

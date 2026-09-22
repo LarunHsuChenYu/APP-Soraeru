@@ -13,7 +13,8 @@
 
 <h1>LLM 設定</h1>
 <p class="text-muted">
-    ApiKey／Model／BaseUrl <strong>只存在 API 的 SQLite</strong>，分析請求只讀 DB（不再 fallback Railway 環境變數）。儲存後立刻生效。
+    ApiKey／Model／BaseUrl／System Prompt <strong>存在 API 的 SQLite</strong>。
+    金鑰與端點請求時只讀 DB；Prompt 有 DB 覆寫時用 DB，否則用程式內嵌預設。儲存後立刻生效。
 </p>
 
 @if (!string.IsNullOrWhiteSpace(_error))
@@ -31,7 +32,7 @@
 }
 else
 {
-    <dl class="row" style="max-width: 40rem;">
+    <dl class="row" style="max-width: 48rem;">
         <dt class="col-sm-4">目前金鑰（DB）</dt>
         <dd class="col-sm-8">
             <code>@_settings.ApiKeyMasked</code>
@@ -52,9 +53,31 @@ else
         <dd class="col-sm-8">
             <code>@(string.IsNullOrWhiteSpace(_settings.BaseUrl) ? "（未設定）" : _settings.BaseUrl)</code>
         </dd>
+        <dt class="col-sm-4">System Prompt 來源</dt>
+        <dd class="col-sm-8">
+            @if (_settings.SystemPromptFromDatabase)
+            {
+                <span class="badge text-bg-info">SQLite</span>
+            }
+            else
+            {
+                <span class="badge text-bg-secondary">內嵌預設</span>
+            }
+        </dd>
+        <dt class="col-sm-4">詞義／讀音 Prompt 來源</dt>
+        <dd class="col-sm-8">
+            @if (_settings.MeaningReadingOnlySystemPromptFromDatabase)
+            {
+                <span class="badge text-bg-info">SQLite</span>
+            }
+            else
+            {
+                <span class="badge text-bg-secondary">內嵌預設</span>
+            }
+        </dd>
     </dl>
 
-    <EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-3" style="max-width: 40rem;">
+    <EditForm Model="_form" OnValidSubmit="SaveAsync" class="row g-3" style="max-width: 48rem;">
         <div class="col-12">
             <label class="form-label">新 ApiKey（留空＝不變更）</label>
             <InputText type="password" class="form-control" @bind-Value="_form.ApiKey" autocomplete="off" />
@@ -70,7 +93,20 @@ else
             <div class="form-text">OpenAI-compatible 端點，無尾隨斜線</div>
         </div>
         <div class="col-12">
+            <label class="form-label">System Prompt（完整空耳分析）</label>
+            <InputTextArea class="form-control font-monospace" rows="14" @bind-Value="_form.SystemPrompt" />
+            <div class="form-text">儲存後立刻生效。清空並儲存＝改回程式內嵌預設（word-analysis）。</div>
+        </div>
+        <div class="col-12">
+            <label class="form-label">詞義／讀音 System Prompt（已核定覆寫路徑）</label>
+            <InputTextArea class="form-control font-monospace" rows="10" @bind-Value="_form.MeaningReadingOnlySystemPrompt" />
+            <div class="form-text">SkipMnemonics／金標命中時使用。清空並儲存＝改回內嵌預設。</div>
+        </div>
+        <div class="col-12">
             <button type="submit" class="btn btn-primary" disabled="@_busy">儲存</button>
+            <button type="button" class="btn btn-outline-secondary" @onclick="ResetPromptsToEmbeddedAsync" disabled="@_busy">
+                重填內嵌預設（未儲存）
+            </button>
             <button type="button" class="btn btn-link" @onclick="LoadAsync" disabled="@_busy">重新載入</button>
         </div>
     </EditForm>
@@ -122,11 +158,25 @@ else
             _form.Model = _settings.Model;
             _form.BaseUrl = _settings.BaseUrl;
             _form.ApiKey = "";
+            _form.SystemPrompt = _settings.SystemPrompt;
+            _form.MeaningReadingOnlySystemPrompt = _settings.MeaningReadingOnlySystemPrompt;
         }
         finally
         {
             _busy = false;
         }
+    }
+
+    private Task ResetPromptsToEmbeddedAsync()
+    {
+        if (_settings is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        _form.SystemPrompt = _settings.ConfigSystemPrompt;
+        _form.MeaningReadingOnlySystemPrompt = _settings.ConfigMeaningReadingOnlySystemPrompt;
+        return Task.CompletedTask;
     }
 
     private async Task SaveAsync()
@@ -140,7 +190,9 @@ else
                 string.IsNullOrWhiteSpace(_form.ApiKey) ? null : _form.ApiKey,
                 ClearApiKey: false,
                 _form.Model,
-                _form.BaseUrl);
+                _form.BaseUrl,
+                _form.SystemPrompt,
+                _form.MeaningReadingOnlySystemPrompt);
             var result = await Api.UpdateLlmSettingsAsync(SessionState.Session!.AccessToken, body);
             if (!result.IsSuccess || result.Value is null)
             {
@@ -149,10 +201,12 @@ else
             }
 
             _settings = result.Value;
-            _ok = "已儲存至 SQLite，分析請求會立刻使用 DB 設定。";
+            _ok = "已儲存至 SQLite，分析請求會立刻使用新設定。";
             _form.ApiKey = "";
             _form.Model = _settings.Model;
             _form.BaseUrl = _settings.BaseUrl;
+            _form.SystemPrompt = _settings.SystemPrompt;
+            _form.MeaningReadingOnlySystemPrompt = _settings.MeaningReadingOnlySystemPrompt;
         }
         finally
         {
@@ -165,5 +219,7 @@ else
         public string ApiKey { get; set; } = "";
         public string Model { get; set; } = "";
         public string BaseUrl { get; set; } = "";
+        public string SystemPrompt { get; set; } = "";
+        public string MeaningReadingOnlySystemPrompt { get; set; } = "";
     }
 }

@@ -5,7 +5,8 @@ using Soraeru.Application.Abstractions.Persistence;
 namespace Soraeru.Infrastructure.Llm;
 
 /// <summary>
-/// Resolves ApiKey / Model / BaseUrl from SQLite only (ADR-0013 amended).
+/// Resolves ApiKey / Model / BaseUrl from SQLite only (ADR-0013).
+/// System prompts: SQLite when set; otherwise embedded <see cref="WordAnalysisPrompts"/> defaults.
 /// Timeout still comes from LlmOptions (appsettings / env).
 /// </summary>
 public sealed class LlmSettingsResolver : ILlmSettingsResolver
@@ -34,6 +35,13 @@ public sealed class LlmSettingsResolver : ILlmSettingsResolver
         var modelFromDb = !string.IsNullOrWhiteSpace(model);
         var baseUrlFromDb = !string.IsNullOrWhiteSpace(baseUrl);
 
+        var embeddedSystem = WordAnalysisPrompts.System;
+        var embeddedMeaning = WordAnalysisPrompts.MeaningReadingOnlySystem;
+        var systemFromDb = !string.IsNullOrWhiteSpace(db?.SystemPrompt);
+        var meaningFromDb = !string.IsNullOrWhiteSpace(db?.MeaningReadingOnlySystemPrompt);
+        var systemPrompt = systemFromDb ? db!.SystemPrompt!.Trim() : embeddedSystem;
+        var meaningPrompt = meaningFromDb ? db!.MeaningReadingOnlySystemPrompt!.Trim() : embeddedMeaning;
+
         return new LlmEffectiveSettings(
             ApiKey: apiKey,
             Model: model,
@@ -42,8 +50,13 @@ public sealed class LlmSettingsResolver : ILlmSettingsResolver
             ApiKeyFromDatabase: apiKeyFromDb,
             ModelFromDatabase: modelFromDb,
             BaseUrlFromDatabase: baseUrlFromDb,
-            // Legacy fields: no longer mirror Railway env — surface DB values for Curator.
             ConfigModel: model,
-            ConfigBaseUrl: baseUrl);
+            ConfigBaseUrl: baseUrl,
+            SystemPrompt: systemPrompt,
+            MeaningReadingOnlySystemPrompt: meaningPrompt,
+            SystemPromptFromDatabase: systemFromDb,
+            MeaningReadingOnlySystemPromptFromDatabase: meaningFromDb,
+            ConfigSystemPrompt: embeddedSystem,
+            ConfigMeaningReadingOnlySystemPrompt: embeddedMeaning);
     }
 }

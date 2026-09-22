@@ -78,6 +78,8 @@ public sealed class SoraeruDbContext : DbContext
         llmSettings.Property(x => x.ApiKey).HasMaxLength(500);
         llmSettings.Property(x => x.Model).HasMaxLength(128);
         llmSettings.Property(x => x.BaseUrl).HasMaxLength(500);
+        llmSettings.Property(x => x.SystemPrompt);
+        llmSettings.Property(x => x.MeaningReadingOnlySystemPrompt);
         llmSettings.Property(x => x.UpdatedByEmail).HasMaxLength(320);
 
         var llmUsage = modelBuilder.Entity<LlmUsageEntity>();

@@ -44,7 +44,13 @@ public sealed class LlmAdminServiceTests
                 false,
                 false,
                 "gemini-3.6-flash",
-                "https://example.com/v1"));
+                "https://example.com/v1",
+                SystemPrompt: "embedded-system",
+                MeaningReadingOnlySystemPrompt: "embedded-meaning",
+                SystemPromptFromDatabase: false,
+                MeaningReadingOnlySystemPromptFromDatabase: false,
+                ConfigSystemPrompt: "embedded-system",
+                ConfigMeaningReadingOnlySystemPrompt: "embedded-meaning"));
     }
 
     [Fact]
@@ -82,12 +88,64 @@ public sealed class LlmAdminServiceTests
                 ApiKey: "new-api-key-value-12345",
                 ClearApiKey: false,
                 Model: "gemini-2.5-flash",
-                BaseUrl: "https://openrouter.ai/api/v1"));
+                BaseUrl: "https://openrouter.ai/api/v1",
+                SystemPrompt: null,
+                MeaningReadingOnlySystemPrompt: null));
 
         result.IsSuccess.ShouldBeTrue();
         saved.ShouldNotBeNull();
         saved!.ApiKey.ShouldBe("new-api-key-value-12345");
         saved.Model.ShouldBe("gemini-2.5-flash");
         saved.BaseUrl.ShouldBe("https://openrouter.ai/api/v1");
+    }
+
+    [Fact]
+    public async Task UpdateSettings_writes_system_prompts_to_sqlite()
+    {
+        LlmRuntimeSettingsRecord? saved = null;
+        _runtime.UpsertAsync(Arg.Any<LlmRuntimeSettingsRecord>(), Arg.Any<CancellationToken>())
+            .Returns(ci =>
+            {
+                saved = ci.ArgAt<LlmRuntimeSettingsRecord>(0);
+                return saved;
+            });
+        _runtime.GetAsync(Arg.Any<CancellationToken>()).Returns(
+            new LlmRuntimeSettingsRecord(
+                "keep-key",
+                "keep-model",
+                "https://keep.example/v1",
+                DateTimeOffset.UtcNow,
+                "curator@example.com",
+                SystemPrompt: "old-system",
+                MeaningReadingOnlySystemPrompt: "old-meaning"));
+
+        var result = await _sut.UpdateSettingsAsync(
+            new UpdateLlmSettingsCommand(
+                CuratorId,
+                ApiKey: null,
+                ClearApiKey: false,
+                Model: null,
+                BaseUrl: null,
+                SystemPrompt: "custom system prompt for analysis",
+                MeaningReadingOnlySystemPrompt: "custom meaning-only prompt"));
+
+        result.IsSuccess.ShouldBeTrue();
+        saved.ShouldNotBeNull();
+        saved!.ApiKey.ShouldBe("keep-key");
+        saved.Model.ShouldBe("keep-model");
+        saved.BaseUrl.ShouldBe("https://keep.example/v1");
+        saved.SystemPrompt.ShouldBe("custom system prompt for analysis");
+        saved.MeaningReadingOnlySystemPrompt.ShouldBe("custom meaning-only prompt");
+    }
+
+    [Fact]
+    public async Task GetSettings_returns_system_prompts()
+    {
+        var result = await _sut.GetSettingsAsync(CuratorId);
+        result.IsSuccess.ShouldBeTrue();
+        result.Value!.SystemPrompt.ShouldBe("embedded-system");
+        result.Value.MeaningReadingOnlySystemPrompt.ShouldBe("embedded-meaning");
+        result.Value.SystemPromptFromDatabase.ShouldBeFalse();
+        result.Value.ConfigSystemPrompt.ShouldBe("embedded-system");
     }
 }

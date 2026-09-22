@@ -432,13 +432,21 @@ public sealed record LlmSettingsDto(
     string BaseUrl,
     bool BaseUrlFromDatabase,
     string ConfigModel,
-    string ConfigBaseUrl);
+    string ConfigBaseUrl,
+    string SystemPrompt = "",
+    string MeaningReadingOnlySystemPrompt = "",
+    bool SystemPromptFromDatabase = false,
+    bool MeaningReadingOnlySystemPromptFromDatabase = false,
+    string ConfigSystemPrompt = "",
+    string ConfigMeaningReadingOnlySystemPrompt = "");
 
 public sealed record UpdateLlmSettingsBody(
     string? ApiKey,
     bool? ClearApiKey,
     string? Model,
-    string? BaseUrl);
+    string? BaseUrl,
+    string? SystemPrompt = null,
+    string? MeaningReadingOnlySystemPrompt = null);
 
 public sealed record LlmUsagePageDto(
     List<LlmUsageItemDto> Items,

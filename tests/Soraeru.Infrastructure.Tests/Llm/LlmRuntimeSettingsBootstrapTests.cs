@@ -25,17 +25,21 @@ public sealed class LlmRuntimeSettingsBootstrapTests
         runtime.Saved!.ApiKey.ShouldBe("sk-seed-key-1234567890abcd");
         runtime.Saved.Model.ShouldBe("seed-model");
         runtime.Saved.BaseUrl.ShouldBe("https://seed.example/v1");
+        runtime.Saved.SystemPrompt.ShouldBe(WordAnalysisPrompts.System);
+        runtime.Saved.MeaningReadingOnlySystemPrompt.ShouldBe(WordAnalysisPrompts.MeaningReadingOnlySystem);
     }
 
     [Fact]
-    public async Task Does_not_overwrite_complete_db_row()
+    public async Task Does_not_overwrite_complete_db_row_including_prompts()
     {
         var existing = new LlmRuntimeSettingsRecord(
             "sk-db-already-set-xxxxxxxxxxxx",
             "db-model",
             "https://db.example/v1",
             DateTimeOffset.UtcNow,
-            "a@b.c");
+            "a@b.c",
+            SystemPrompt: WordAnalysisPrompts.System,
+            MeaningReadingOnlySystemPrompt: WordAnalysisPrompts.MeaningReadingOnlySystem);
         var runtime = new CapturingRuntime(existing);
         var options = new LlmOptions
         {
@@ -48,6 +52,32 @@ public sealed class LlmRuntimeSettingsBootstrapTests
             runtime, options, NullLogger.Instance);
 
         runtime.Saved.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Seeds_prompts_when_credentials_complete_but_prompts_missing()
+    {
+        var existing = new LlmRuntimeSettingsRecord(
+            "sk-db-already-set-xxxxxxxxxxxx",
+            "db-model",
+            "https://db.example/v1",
+            DateTimeOffset.UtcNow,
+            "a@b.c");
+        var runtime = new CapturingRuntime(existing);
+        var options = new LlmOptions
+        {
+            ApiKey = "sk-env-ignored",
+            Model = "env-model",
+            BaseUrl = "https://env.example/v1"
+        };
+
+        await LlmRuntimeSettingsBootstrap.EnsureSeededFromConfigAsync(
+            runtime, options, NullLogger.Instance);
+
+        runtime.Saved.ShouldNotBeNull();
+        runtime.Saved!.ApiKey.ShouldBe("sk-db-already-set-xxxxxxxxxxxx");
+        runtime.Saved.SystemPrompt.ShouldBe(WordAnalysisPrompts.System);
+        runtime.Saved.MeaningReadingOnlySystemPrompt.ShouldBe(WordAnalysisPrompts.MeaningReadingOnlySystem);
     }
 
     private sealed class CapturingRuntime(LlmRuntimeSettingsRecord? existing) : ILlmRuntimeSettingsRepository

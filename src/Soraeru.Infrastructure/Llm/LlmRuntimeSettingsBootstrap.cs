@@ -5,8 +5,8 @@ using Soraeru.Application.Abstractions.Persistence;
 namespace Soraeru.Infrastructure.Llm;
 
 /// <summary>
-/// One-time migration: copy Llm env/appsettings into SQLite when DB row is incomplete.
-/// After this, request-time resolution must not read ApiKey/Model/BaseUrl from env.
+/// One-time migration: copy Llm env/appsettings into SQLite when DB row is incomplete,
+/// and seed system prompts from <see cref="WordAnalysisPrompts"/> when missing.
 /// </summary>
 public static class LlmRuntimeSettingsBootstrap
 {
@@ -20,11 +20,17 @@ public static class LlmRuntimeSettingsBootstrap
         var apiKey = FirstNonEmpty(existing?.ApiKey, options.ApiKey);
         var model = FirstNonEmpty(existing?.Model, options.Model);
         var baseUrl = FirstNonEmpty(existing?.BaseUrl, options.BaseUrl);
+        var systemPrompt = FirstNonEmpty(existing?.SystemPrompt, WordAnalysisPrompts.System);
+        var meaningPrompt = FirstNonEmpty(
+            existing?.MeaningReadingOnlySystemPrompt,
+            WordAnalysisPrompts.MeaningReadingOnlySystem);
 
-        var dbComplete = !string.IsNullOrWhiteSpace(existing?.ApiKey)
+        var credentialsComplete = !string.IsNullOrWhiteSpace(existing?.ApiKey)
             && !string.IsNullOrWhiteSpace(existing?.Model)
             && !string.IsNullOrWhiteSpace(existing?.BaseUrl);
-        if (dbComplete)
+        var promptsComplete = !string.IsNullOrWhiteSpace(existing?.SystemPrompt)
+            && !string.IsNullOrWhiteSpace(existing?.MeaningReadingOnlySystemPrompt);
+        if (credentialsComplete && promptsComplete)
         {
             return;
         }
@@ -33,8 +39,30 @@ public static class LlmRuntimeSettingsBootstrap
             || string.IsNullOrWhiteSpace(model)
             || string.IsNullOrWhiteSpace(baseUrl))
         {
-            logger?.LogWarning(
-                "LLM SQLite settings incomplete and config cannot seed ApiKey/Model/BaseUrl. Configure via Curator LLM 設定.");
+            // Still seed prompts alone when credentials already in DB but prompts missing.
+            if (credentialsComplete && !promptsComplete
+                && !string.IsNullOrWhiteSpace(systemPrompt)
+                && !string.IsNullOrWhiteSpace(meaningPrompt))
+            {
+                await runtime.UpsertAsync(
+                    new LlmRuntimeSettingsRecord(
+                        existing!.ApiKey,
+                        existing.Model,
+                        existing.BaseUrl,
+                        DateTimeOffset.UtcNow,
+                        UpdatedByEmail: "bootstrap:prompts→sqlite",
+                        systemPrompt,
+                        meaningPrompt),
+                    cancellationToken);
+                logger?.LogInformation(
+                    "Seeded LlmRuntimeSettings system prompts from embedded WordAnalysisPrompts into SQLite.");
+            }
+            else
+            {
+                logger?.LogWarning(
+                    "LLM SQLite settings incomplete and config cannot seed ApiKey/Model/BaseUrl. Configure via Curator LLM 設定.");
+            }
+
             return;
         }
 
@@ -44,6 +72,11 @@ public static class LlmRuntimeSettingsBootstrap
             && string.Equals(
                 existing.BaseUrl?.Trim().TrimEnd('/'),
                 baseUrl.Trim().TrimEnd('/'),
+                StringComparison.Ordinal)
+            && string.Equals(existing.SystemPrompt?.Trim(), systemPrompt!.Trim(), StringComparison.Ordinal)
+            && string.Equals(
+                existing.MeaningReadingOnlySystemPrompt?.Trim(),
+                meaningPrompt!.Trim(),
                 StringComparison.Ordinal);
         if (alreadySame)
         {
@@ -56,11 +89,13 @@ public static class LlmRuntimeSettingsBootstrap
                 model.Trim(),
                 baseUrl.Trim().TrimEnd('/'),
                 DateTimeOffset.UtcNow,
-                UpdatedByEmail: "bootstrap:config→sqlite"),
+                UpdatedByEmail: "bootstrap:config→sqlite",
+                systemPrompt!.Trim(),
+                meaningPrompt!.Trim()),
             cancellationToken);
 
         logger?.LogInformation(
-            "Seeded LlmRuntimeSettings from config into SQLite (one-time). Prefer Curator LLM 設定 afterwards; Railway Llm__* can be removed.");
+            "Seeded LlmRuntimeSettings from config/prompts into SQLite (one-time). Prefer Curator LLM 設定 afterwards; Railway Llm__* can be removed.");
     }
 
     private static string? FirstNonEmpty(string? preferred, string? fallback) =>

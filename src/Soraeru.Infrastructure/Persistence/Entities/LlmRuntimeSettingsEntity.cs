@@ -11,6 +11,12 @@ public sealed class LlmRuntimeSettingsEntity
 
     public string? BaseUrl { get; set; }
 
+    /// <summary>Full word-analysis system prompt (empty-ear generation).</summary>
+    public string? SystemPrompt { get; set; }
+
+    /// <summary>Verified-hit path: meaning + reading only.</summary>
+    public string? MeaningReadingOnlySystemPrompt { get; set; }
+
     public DateTimeOffset UpdatedAt { get; set; }
 
     public string? UpdatedByEmail { get; set; }

@@ -37,6 +37,33 @@ public sealed class LlmSettingsResolverTests
         effective.ConfigModel.ShouldBe("db-model");
         effective.ConfigBaseUrl.ShouldBe("https://db.example/v1");
         effective.TimeoutSeconds.ShouldBe(45);
+        effective.SystemPrompt.ShouldBe(WordAnalysisPrompts.System);
+        effective.MeaningReadingOnlySystemPrompt.ShouldBe(WordAnalysisPrompts.MeaningReadingOnlySystem);
+        effective.SystemPromptFromDatabase.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Resolve_uses_sqlite_system_prompts_when_present()
+    {
+        var runtime = new StubRuntime(
+            new LlmRuntimeSettingsRecord(
+                "sk-db-key-abcdefghijklmnop",
+                "db-model",
+                "https://db.example/v1",
+                DateTimeOffset.UtcNow,
+                "curator@example.com",
+                SystemPrompt: "db-system-prompt",
+                MeaningReadingOnlySystemPrompt: "db-meaning-prompt"));
+        var options = Options.Create(new LlmOptions { TimeoutSeconds = 45 });
+
+        var sut = new LlmSettingsResolver(options, runtime);
+        var effective = await sut.ResolveAsync();
+
+        effective.SystemPrompt.ShouldBe("db-system-prompt");
+        effective.MeaningReadingOnlySystemPrompt.ShouldBe("db-meaning-prompt");
+        effective.SystemPromptFromDatabase.ShouldBeTrue();
+        effective.MeaningReadingOnlySystemPromptFromDatabase.ShouldBeTrue();
+        effective.ConfigSystemPrompt.ShouldBe(WordAnalysisPrompts.System);
     }
 
     [Fact]
@@ -57,6 +84,8 @@ public sealed class LlmSettingsResolverTests
         effective.Model.ShouldBe("");
         effective.BaseUrl.ShouldBe("");
         effective.ApiKeyFromDatabase.ShouldBeFalse();
+        effective.SystemPrompt.ShouldBe(WordAnalysisPrompts.System);
+        effective.SystemPromptFromDatabase.ShouldBeFalse();
     }
 
     private sealed class StubRuntime(LlmRuntimeSettingsRecord? row) : ILlmRuntimeSettingsRepository

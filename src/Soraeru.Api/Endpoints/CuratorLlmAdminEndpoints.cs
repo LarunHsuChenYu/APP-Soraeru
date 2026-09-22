@@ -44,7 +44,9 @@ public static class CuratorLlmAdminEndpoints
                     body.ApiKey,
                     body.ClearApiKey ?? false,
                     body.Model,
-                    body.BaseUrl),
+                    body.BaseUrl,
+                    body.SystemPrompt,
+                    body.MeaningReadingOnlySystemPrompt),
                 ct);
             return ToHttp(result, dto => Results.Ok(ToSettingsResponse(dto)));
         });
@@ -89,7 +91,13 @@ public static class CuratorLlmAdminEndpoints
         baseUrl = dto.BaseUrl,
         baseUrlFromDatabase = dto.BaseUrlFromDatabase,
         configModel = dto.ConfigModel,
-        configBaseUrl = dto.ConfigBaseUrl
+        configBaseUrl = dto.ConfigBaseUrl,
+        systemPrompt = dto.SystemPrompt,
+        meaningReadingOnlySystemPrompt = dto.MeaningReadingOnlySystemPrompt,
+        systemPromptFromDatabase = dto.SystemPromptFromDatabase,
+        meaningReadingOnlySystemPromptFromDatabase = dto.MeaningReadingOnlySystemPromptFromDatabase,
+        configSystemPrompt = dto.ConfigSystemPrompt,
+        configMeaningReadingOnlySystemPrompt = dto.ConfigMeaningReadingOnlySystemPrompt
     };
 
     private static object ToUsageItem(LlmUsageItem x) => new
@@ -140,4 +148,6 @@ public sealed record UpdateLlmSettingsRequest(
     string? ApiKey,
     bool? ClearApiKey,
     string? Model,
-    string? BaseUrl);
+    string? BaseUrl,
+    string? SystemPrompt = null,
+    string? MeaningReadingOnlySystemPrompt = null);

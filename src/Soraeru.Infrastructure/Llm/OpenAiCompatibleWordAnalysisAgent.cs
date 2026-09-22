@@ -53,8 +53,8 @@ public sealed class OpenAiCompatibleWordAnalysisAgent : IWordAnalysisAgent
         EnsureConfigured(effective);
 
         var systemPrompt = request.SkipMnemonics
-            ? WordAnalysisPrompts.MeaningReadingOnlySystem
-            : WordAnalysisPrompts.System;
+            ? effective.MeaningReadingOnlySystemPrompt
+            : effective.SystemPrompt;
         var userPrompt = request.SkipMnemonics
             ? WordAnalysisPrompts.BuildMeaningReadingUserPrompt(
                 request.Text,

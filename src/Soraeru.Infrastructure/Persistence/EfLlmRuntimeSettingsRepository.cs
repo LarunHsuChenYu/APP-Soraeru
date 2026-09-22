@@ -31,6 +31,8 @@ public sealed class EfLlmRuntimeSettingsRepository : ILlmRuntimeSettingsReposito
         row.ApiKey = record.ApiKey;
         row.Model = record.Model;
         row.BaseUrl = record.BaseUrl;
+        row.SystemPrompt = record.SystemPrompt;
+        row.MeaningReadingOnlySystemPrompt = record.MeaningReadingOnlySystemPrompt;
         row.UpdatedAt = record.UpdatedAtUtc;
         row.UpdatedByEmail = record.UpdatedByEmail;
         await _db.SaveChangesAsync(cancellationToken);
@@ -38,7 +40,14 @@ public sealed class EfLlmRuntimeSettingsRepository : ILlmRuntimeSettingsReposito
     }
 
     private static LlmRuntimeSettingsRecord ToRecord(LlmRuntimeSettingsEntity row) =>
-        new(row.ApiKey, row.Model, row.BaseUrl, row.UpdatedAt, row.UpdatedByEmail);
+        new(
+            row.ApiKey,
+            row.Model,
+            row.BaseUrl,
+            row.UpdatedAt,
+            row.UpdatedByEmail,
+            row.SystemPrompt,
+            row.MeaningReadingOnlySystemPrompt);
 }
 
 public sealed class EfLlmUsageRepository : ILlmUsageRepository

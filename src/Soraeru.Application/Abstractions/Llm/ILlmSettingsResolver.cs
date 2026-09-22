@@ -9,7 +9,13 @@ public sealed record LlmEffectiveSettings(
     bool ModelFromDatabase,
     bool BaseUrlFromDatabase,
     string ConfigModel,
-    string ConfigBaseUrl);
+    string ConfigBaseUrl,
+    string SystemPrompt,
+    string MeaningReadingOnlySystemPrompt,
+    bool SystemPromptFromDatabase,
+    bool MeaningReadingOnlySystemPromptFromDatabase,
+    string ConfigSystemPrompt,
+    string ConfigMeaningReadingOnlySystemPrompt);
 
 public interface ILlmSettingsResolver
 {

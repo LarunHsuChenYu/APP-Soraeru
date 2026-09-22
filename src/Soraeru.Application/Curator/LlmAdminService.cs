@@ -30,7 +30,11 @@ public sealed record UpdateLlmSettingsCommand(
     /// <summary>null = leave unchanged; empty = clear override (use config).</summary>
     string? Model,
     /// <summary>null = leave unchanged; empty = clear override (use config).</summary>
-    string? BaseUrl);
+    string? BaseUrl,
+    /// <summary>null = leave unchanged; empty = clear DB and fall back to embedded default.</summary>
+    string? SystemPrompt = null,
+    /// <summary>null = leave unchanged; empty = clear DB and fall back to embedded default.</summary>
+    string? MeaningReadingOnlySystemPrompt = null);
 
 public sealed record LlmSettingsView(
     string ApiKeyMasked,
@@ -41,7 +45,13 @@ public sealed record LlmSettingsView(
     string BaseUrl,
     bool BaseUrlFromDatabase,
     string ConfigModel,
-    string ConfigBaseUrl);
+    string ConfigBaseUrl,
+    string SystemPrompt,
+    string MeaningReadingOnlySystemPrompt,
+    bool SystemPromptFromDatabase,
+    bool MeaningReadingOnlySystemPromptFromDatabase,
+    string ConfigSystemPrompt,
+    string ConfigMeaningReadingOnlySystemPrompt);
 
 public sealed record LlmUsagePage(
     IReadOnlyList<LlmUsageItem> Items,
@@ -137,13 +147,31 @@ public sealed class LlmAdminService : ILlmAdminService
             baseUrl = string.IsNullOrWhiteSpace(command.BaseUrl) ? null : command.BaseUrl.Trim().TrimEnd('/');
         }
 
+        var systemPrompt = existing?.SystemPrompt;
+        if (command.SystemPrompt is not null)
+        {
+            systemPrompt = string.IsNullOrWhiteSpace(command.SystemPrompt)
+                ? null
+                : command.SystemPrompt.Trim();
+        }
+
+        var meaningOnly = existing?.MeaningReadingOnlySystemPrompt;
+        if (command.MeaningReadingOnlySystemPrompt is not null)
+        {
+            meaningOnly = string.IsNullOrWhiteSpace(command.MeaningReadingOnlySystemPrompt)
+                ? null
+                : command.MeaningReadingOnlySystemPrompt.Trim();
+        }
+
         await _runtime.UpsertAsync(
             new LlmRuntimeSettingsRecord(
                 apiKey,
                 model,
                 baseUrl,
                 DateTimeOffset.UtcNow,
-                user?.Email),
+                user?.Email,
+                systemPrompt,
+                meaningOnly),
             cancellationToken);
 
         var effective = await _resolver.ResolveAsync(cancellationToken);
@@ -199,7 +227,13 @@ public sealed class LlmAdminService : ILlmAdminService
             effective.BaseUrl,
             effective.BaseUrlFromDatabase,
             effective.ConfigModel,
-            effective.ConfigBaseUrl);
+            effective.ConfigBaseUrl,
+            effective.SystemPrompt,
+            effective.MeaningReadingOnlySystemPrompt,
+            effective.SystemPromptFromDatabase,
+            effective.MeaningReadingOnlySystemPromptFromDatabase,
+            effective.ConfigSystemPrompt,
+            effective.ConfigMeaningReadingOnlySystemPrompt);
 
     private async Task<(string Code, string Message)?> EnsureCuratorAsync(
         Guid actorUserId,

@@ -5,7 +5,9 @@ public sealed record LlmRuntimeSettingsRecord(
     string? Model,
     string? BaseUrl,
     DateTimeOffset UpdatedAtUtc,
-    string? UpdatedByEmail);
+    string? UpdatedByEmail,
+    string? SystemPrompt = null,
+    string? MeaningReadingOnlySystemPrompt = null);
 
 public interface ILlmRuntimeSettingsRepository
 {

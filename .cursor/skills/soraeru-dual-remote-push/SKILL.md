@@ -19,6 +19,15 @@ description: >-
 2. https://github.com/Soraeru-Development/APP-Soraeru  
    （Ash-Ben軟體科技公司使用）
 
+## Railway 帳號（verbatim）
+
+目前推上的 Railway 的帳號為 asbe2026@gmail.com  
+此為公司帳號。
+
+- 部署／Dashboard／Variables／Volume 操作預設對應此公司 Railway 帳號
+- 勿與個人 Railway／個人 GitHub 部署環境混淆
+- GitHub 自動部署來源應對齊公司 repo：`Soraeru-Development/APP-Soraeru`
+
 ## When to apply
 
 - 使用者要求 **commit**、**push**、同步 GitHub、或為 Railway 部署推送程式

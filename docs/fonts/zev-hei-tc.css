@@ -1,0 +1,38 @@
+/* Soraeru 生產文件：宙黑體（Zev Hei TC）。授權見 zev-hei-tc/LICENSE.md */
+@font-face {
+  font-family: "ZevHeiTC-N";
+  src: url("./zev-hei-tc/ZevHeiTC-N-VF.otf") format("opentype");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "ZevHeiTC-F";
+  src: url("./zev-hei-tc/ZevHeiTC-F-VF.otf") format("opentype");
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --soraeru-prod-font: "ZevHeiTC-N", "ZevHeiTC-F", sans-serif;
+  --soraeru-prod-font-footed: "ZevHeiTC-F", "ZevHeiTC-N", sans-serif;
+}
+
+.soraeru-prod-doc,
+.soraeru-prod-doc body {
+  font-family: var(--soraeru-prod-font);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.soraeru-prod-doc h1,
+.soraeru-prod-doc h2,
+.soraeru-prod-doc h3,
+.soraeru-prod-doc .title {
+  font-family: var(--soraeru-prod-font);
+  font-weight: 700;
+}

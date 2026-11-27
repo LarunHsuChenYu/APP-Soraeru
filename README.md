@@ -1,6 +1,6 @@
 # Soraeru（空耳聯合國）
 
-三層式 .NET 方案骨架。規格以 `docs/` 規劃書為準。
+三層式 .NET 方案骨架。規格以 `docs/` 規劃書為準。說明書／企劃／規格／簡報等**生產文件**全域使用宙黑體（`ZevHeiTC-N`），見 [`docs/fonts/README.md`](docs/fonts/README.md)。
 
 ## 專案
 
